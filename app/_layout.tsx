@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { CustomHeader } from '../components/CustomHeader'
 
 
 export const unstable_settings = {
@@ -14,7 +15,7 @@ export default function RootLayoutNav() {
 
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ header: () => null }} />
     </Stack>
   );
 }
