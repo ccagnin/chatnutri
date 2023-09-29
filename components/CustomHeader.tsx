@@ -6,7 +6,6 @@ export const CustomHeader = () => {
   return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        <Text>CustomHeader</Text>
       </View>
   );
 };
