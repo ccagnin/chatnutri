@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StyleSheet, View, StatusBar, Image } from 'react-native';
 import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
 import logo from '../assets/images/ChatNutri_logo.png';
 import { useNavigation } from '@react-navigation/native';
 import Onboarding from './screens/onboarding/Onboarding';
 import Theme from '../constants/Theme'
+import { useAuth } from './context/AuthContext';
 
 const Page = () => {
   const animationIn = FadeInUp.springify()
@@ -17,14 +18,21 @@ const Page = () => {
   const animationOut = FadeOut.springify();
 
   const navigation = useNavigation();
+  const { authState } = useAuth();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      navigation.navigate('Onboarding', { screen: 'Onboarding' });
+      if (authState.authenticated) {
+        console.log('autenticado')
+        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes'});
+      } else {
+        console.log('nao autenticado')
+        navigation.navigate('Onboarding', { screen: 'Onboarding' });
+      }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [navigation]);
+  }, [authState.authenticated, navigation]);
 
   return (
     <View style={styles.container}>

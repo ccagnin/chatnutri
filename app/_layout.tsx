@@ -5,6 +5,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Onboarding from './screens/onboarding/Onboarding';
 import Page from './index';
+import { useAuth } from './context/AuthContext';
+import HomeRecepes from './screens/recipes/HomeRecepes'
+import Auth from './screens/auth/Auth'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -33,6 +36,8 @@ const RootLayoutNav = () => {
     },
   });
 
+  const { authState, onLogout } = useAuth();
+
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator
@@ -47,7 +52,11 @@ const RootLayoutNav = () => {
         }}
       >
         <Stack.Screen name="index" component={Page} />
-        <Stack.Screen name="Onboarding" component={Onboarding} />
+        { authState.authenticated ? (
+          <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
+        ) : (
+          <><Stack.Screen name="Onboarding" component={Onboarding} /><Stack.Screen name="Auth" component={Auth} /></>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

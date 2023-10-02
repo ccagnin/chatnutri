@@ -1,12 +1,23 @@
-import React, { useRef, useEffect, } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Platform, Animated, Easing } from 'react-native';
+import React, { useRef, useEffect, useState, } from 'react';
+import { StyleSheet, View, Text, SafeAreaView, Platform, Animated, Easing, Button } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { TextInput } from 'react-native-gesture-handler'
+import axios from 'axios';
+import { useAuth } from '../../context/AuthContext'
+import { useNavigation } from 'expo-router'
 
 const Onboarding = () => {
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const [email, setEmail] = useState('');
+  const { onLogin, onRegister } = useAuth();
+
+  const navigation = useNavigation();
+
+  const login = async () => {
+    navigation.navigate('Auth', { email, screen: 'Auth' });
+  };
 
   useEffect(() => {
     Animated.parallel([
@@ -32,13 +43,22 @@ const Onboarding = () => {
       <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
         <CustomHeader />
       </Animated.View>
-      <Animated.View style={[styles.textContainer, {opacity: opacity}]}>
+      <Animated.View style={[styles.textContainer, { opacity: opacity }]}>
         <Text style={styles.text}>Insira seu email</Text>
         <TextInput
           style={[styles.emailBox, styles.frameLayout]}
           placeholder='nome@email.com'
           placeholderTextColor='#646464'
-          ></TextInput>
+          onChangeText={(text) => setEmail(text)}
+        />
+       <View style={styles.buttonContainer}>
+          <Button
+            title="Enviar"
+            onPress={() => {
+              login();
+            }}
+          />
+        </View>
       </Animated.View>
     </View>
   );
@@ -69,7 +89,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     top: 368,
-    height: 107,
+    height: 300,
     width: 304,
     overflow: "hidden",
     alignSelf: "center",
@@ -90,6 +110,15 @@ const styles = StyleSheet.create({
     width: 304,
     position: 'absolute',
     color: Theme.colors.lightBrown,
+  },
+  buttonContainer: {
+    top: 100,
+    width: 304,
+    height: 53,
+    borderRadius: 45,
+    backgroundColor: "#047460",
+    alignSelf: "center",
+    position: "absolute",
   },
 });
 
