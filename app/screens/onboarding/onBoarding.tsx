@@ -1,22 +1,38 @@
 import React, { useRef, useEffect, useState, } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Platform, Animated, Easing, Button } from 'react-native';
+import { StyleSheet, View, Platform, Animated, Easing } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { CustomHeader } from '../../../components/CustomHeader';
-import { TextInput } from 'react-native-gesture-handler'
-import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'
 import { useNavigation } from 'expo-router'
+import AuthInput from '../../../components/AuthInput'
+import { ApiManager } from '../../api/ApiManager';
 
 const Onboarding = () => {
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const [email, setEmail] = useState('');
-  const { onLogin, onRegister } = useAuth();
-
   const navigation = useNavigation();
 
-  const login = async () => {
-    navigation.navigate('Auth', { email, screen: 'Auth' });
+  const handleEmailSubmit = async () => {
+    console.log('Email a ser enviado:', email);
+    try {
+      const response = await ApiManager.post('users/checkEmail', {
+        email,
+      });
+
+      const emailExists = response.data.emailExists;
+
+      if (emailExists) {
+        navigation.navigate('Auth', { screen: 'Auth', email });
+      } else {
+        navigation.navigate('SignUp', { screen: 'SignUp', email });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleInputChange = (text: string) => {
+    setEmail(text);
   };
 
   useEffect(() => {
@@ -44,21 +60,13 @@ const Onboarding = () => {
         <CustomHeader />
       </Animated.View>
       <Animated.View style={[styles.textContainer, { opacity: opacity }]}>
-        <Text style={styles.text}>Insira seu email</Text>
-        <TextInput
-          style={[styles.emailBox, styles.frameLayout]}
-          placeholder='nome@email.com'
-          placeholderTextColor='#646464'
-          onChangeText={(text) => setEmail(text)}
+        <AuthInput
+          text='Insira seu email'
+          placeholder='nome@seuemail.com'
+          buttonText='Entrar'
+          onChangeText={handleInputChange}
+          onPress={handleEmailSubmit}
         />
-       <View style={styles.buttonContainer}>
-          <Button
-            title="Enviar"
-            onPress={() => {
-              login();
-            }}
-          />
-        </View>
       </Animated.View>
     </View>
   );
@@ -74,51 +82,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: Theme.colors.primary,
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: Theme.colors.lightBrown,
-    textAlign: "center",
-    height: 107,
-    top: 0,
-  },
   textContainer: {
-    top: 368,
-    height: 300,
-    width: 304,
-    overflow: "hidden",
-    alignSelf: "center",
-    position: "absolute",
-  },
-  emailBox: {
-    top: 54,
-    borderRadius: 45,
-    backgroundColor: "#404040",
-    borderStyle: "solid",
-    borderColor: "#047460",
-    borderWidth: 1,
-    height: 53,
-    padding: 10,
-    paddingLeft: 20,
-  },
-  frameLayout: {
-    width: 304,
-    position: 'absolute',
-    color: Theme.colors.lightBrown,
-  },
-  buttonContainer: {
-    top: 100,
-    width: 304,
-    height: 53,
-    borderRadius: 45,
-    backgroundColor: "#047460",
-    alignSelf: "center",
-    position: "absolute",
+    flex: 1,
+    alignItems: "center",
   },
 });
 
