@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Button, Animated, Easing } from 'react-native';
 import Theme from '../constants/Theme'
 
-const AuthInput = ({ text, placeholder, buttonText, onPress, onChangeText }) => {
+const AuthInput = ({ text, placeholder, buttonText, onPress, onChangeText, secureTextEntry = false }) => {
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -33,6 +33,7 @@ const AuthInput = ({ text, placeholder, buttonText, onPress, onChangeText }) => 
         placeholder={placeholder}
         placeholderTextColor={Theme.colors.lightBrown}
         onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
       />
       <View style={styles.buttonContainer}>
         <Button title={buttonText} onPress={onPress} />

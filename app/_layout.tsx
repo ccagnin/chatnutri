@@ -55,8 +55,12 @@ const RootLayoutNav = () => {
         { authState.authenticated ? (
           <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
         ) : (
-          <><Stack.Screen name="Onboarding" component={Onboarding} /><Stack.Screen name="Auth" component={Auth} /></>
+          <><Stack.Screen name="Onboarding" component={Onboarding} />
+            <Stack.Screen name="Auth" component={Auth} />
+            <Stack.Screen name="HomeRecepes" component={HomeRecepes} />
+            </>
         )}
+
       </Stack.Navigator>
     </NavigationContainer>
   );

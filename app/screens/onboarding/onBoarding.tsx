@@ -21,11 +21,9 @@ const Onboarding = () => {
 
       const emailExists = response.data.emailExists;
 
-      if (emailExists) {
-        navigation.navigate('Auth', { screen: 'Auth', email });
-      } else {
-        navigation.navigate('SignUp', { screen: 'SignUp', email });
-      }
+      const navigateToScreen = emailExists ? 'Auth' : 'SignUp';
+      navigation.navigate(navigateToScreen, { email });
+
     } catch (error) {
       console.log(error);
     }
