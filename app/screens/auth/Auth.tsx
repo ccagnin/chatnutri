@@ -1,23 +1,18 @@
-import React, { useRef, useEffect, useState, } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, Platform, Animated, Easing, Button } from 'react-native';
-import Theme from '../../../constants/Theme';
-import { CustomHeader } from '../../../components/CustomHeader';
-import { TextInput } from 'react-native-gesture-handler'
-import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'
-import { useNavigation } from 'expo-router'
-import AuthInput from '../../../components/AuthInput'
-import { useRoute } from '@react-navigation/native'
-import { ApiManager } from '../../api/ApiManager'
+import React, { useRef, useEffect, useState } from 'react';
+import { StyleSheet, View, Animated, Easing, Platform } from 'react-native';
+import CustomHeaderLong from '../../../components/CustomHeaderLong';
+import AuthInput from '../../../components/AuthInput';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { ApiManager } from '../../api/ApiManager';
+import Theme from '../../../constants/Theme'
 
 const Auth = () => {
-  const translateY = useRef(new Animated.Value(-200)).current;
+  const translateY = useRef(new Animated.Value(-181)).current;
   const opacity = useRef(new Animated.Value(0)).current;
-  const { onLogin } = useAuth();
   const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('');
   const route = useRoute();
   const email = (route.params as { email?: string }).email;
-  console.log('email:', email);
 
   const navigation = useNavigation();
 
@@ -28,13 +23,13 @@ const Auth = () => {
         password,
       });
 
-      if (response.data.token){
+      if (response.data.token) {
         navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
       } else {
         console.log('Erro ao logar');
       }
     } catch (error) {
-      console.log("Erro:", error);
+      console.log('Erro:', error);
     }
   };
 
@@ -42,6 +37,20 @@ const Auth = () => {
     setPassword(text);
   };
 
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const response = await ApiManager.get(`users/getUserByEmail?email=${email}`);
+        if (response.data) {
+          setUserName(response.data.name);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    fetchUserName();
+  }, [email]);
 
   useEffect(() => {
     Animated.parallel([
@@ -65,7 +74,7 @@ const Auth = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
-        <CustomHeader />
+        <CustomHeaderLong text={`Bem vindo de volta, ${userName}`} />
       </Animated.View>
       <Animated.View style={[styles.textContainer, { opacity: opacity }]}>
         <AuthInput
@@ -89,11 +98,12 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: Platform.OS === 'ios' ? 50 : 10,
     paddingHorizontal: 20,
-    backgroundColor: Theme.colors.primary,
+    backgroundColor: Theme.colors.background,
   },
   textContainer: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
