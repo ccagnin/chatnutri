@@ -18,8 +18,10 @@ const Onboarding = () => {
       const response = await ApiManager.post('users/checkEmail', {
         email,
       });
+      console.log('Resposta da API:', response.data);
 
       const emailExists = response.data.emailExists;
+      console.log('Email existe?', emailExists);
 
       const navigateToScreen = emailExists ? 'Auth' : 'SignUp';
       navigation.navigate(navigateToScreen, { email });

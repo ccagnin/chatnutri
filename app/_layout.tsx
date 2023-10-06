@@ -8,6 +8,9 @@ import Page from './index';
 import { useAuth } from './context/AuthContext';
 import HomeRecepes from './screens/recipes/HomeRecepes'
 import Auth from './screens/auth/Auth'
+import { ApiManager } from './api/ApiManager'
+import SignUp from './screens/auth/SignUp'
+import EnterPassword from './screens/auth/EnterPassword'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -38,6 +41,22 @@ const RootLayoutNav = () => {
 
   const { authState, onLogout } = useAuth();
 
+  const emailExists = async (email: string) => {
+    try {
+      const response = await ApiManager.post('users/checkEmail', {
+        email,
+      });
+      console.log('Resposta da API no layout:', response.data);
+
+      const emailExists = response.data.emailExists;
+      console.log('Email existe?', emailExists);
+
+      return emailExists;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator
@@ -55,10 +74,11 @@ const RootLayoutNav = () => {
         { authState.authenticated ? (
           <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
         ) : (
-          <><Stack.Screen name="Onboarding" component={Onboarding} />
-            <Stack.Screen name="Auth" component={Auth} />
-            <Stack.Screen name="HomeRecepes" component={HomeRecepes} />
-            </>
+          <><><><Stack.Screen name="Onboarding" component={Onboarding} />
+              <Stack.Screen name="Auth" component={Auth} />
+              <Stack.Screen name="SignUp" component={SignUp} />
+              <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
+            </><Stack.Screen name="HomeRecepes" component={HomeRecepes} /></>
         )}
 
       </Stack.Navigator>
