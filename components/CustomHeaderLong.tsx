@@ -39,11 +39,14 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 49,
+    paddingBottom: 24,
   },
   text: {
-    color: 'white',
-    fontSize: 18,
+    fontSize: 24,
+    width: 317,
+    fontFamily: 'Poppins-Medium',
+    color: Theme.colors.lightGreen,
+    textAlign: 'center',
   },
 });
 

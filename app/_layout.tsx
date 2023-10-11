@@ -1,6 +1,6 @@
 import React from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Onboarding from './screens/onboarding/Onboarding';
@@ -11,6 +11,10 @@ import Auth from './screens/auth/Auth'
 import { ApiManager } from './api/ApiManager'
 import SignUp from './screens/auth/SignUp'
 import EnterPassword from './screens/auth/EnterPassword'
+import ObjectivesScreen from './screens/onboarding/MeasuresChat'
+import WeightInput from './screens/onboarding/WeightInput'
+import HeightInput from './screens/onboarding/HeightInput'
+import AgeInput from './screens/onboarding/AgeInput'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -19,19 +23,22 @@ export const unstable_settings = {
 const Stack = createStackNavigator();
 
 const RootLayoutNav = () => {
-  // const [fontsLoaded] = useFonts({
-  //   'Montserrat-Bold': require('../assets/fonts/Montserrat-Bold.ttf'),
-  //   'Montserrat-Regular': require('../assets/fonts/Montserrat-Regular.ttf'),
-  //   'Montserrat-Medium': require('../assets/fonts/Montserrat-Medium.ttf'),
-  //   'Montserrat-SemiBold': require('../assets/fonts/Montserrat-SemiBold.ttf'),
-  //   'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf'),
-  //   'Montserrat-ExtraBold': require('../assets/fonts/Montserrat-ExtraBold.ttf'),
-  //   'Montserrat-Black': require('../assets/fonts/Montserrat-Black.ttf'),
-  // });
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': require('../assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+    'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+    'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+    'Poppins-Light': require('../assets/fonts/Poppins-Light.ttf'),
+    'Poppins-ExtraLight': require('../assets/fonts/Poppins-ExtraLight.ttf'),
+    'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
+    'Poppins-Thin': require('../assets/fonts/Poppins-Thin.ttf'),
+    'Poppins-ExtraBold': require('../assets/fonts/Poppins-ExtraBold.ttf'),
+    'Poppins-Italic': require('../assets/fonts/Poppins-Italic.ttf'),
+  });
 
-  // if (!fontsLoaded) {
-  //   return null;
-  // }
+  if (!fontsLoaded) {
+    return null;
+  }
 
   const fadeAnimation = ({ current }) => ({
     cardStyle: {
@@ -74,10 +81,14 @@ const RootLayoutNav = () => {
         { authState.authenticated ? (
           <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
         ) : (
-          <><><><Stack.Screen name="Onboarding" component={Onboarding} />
+          <><><><><Stack.Screen name="Onboarding" component={Onboarding} />
               <Stack.Screen name="Auth" component={Auth} />
               <Stack.Screen name="SignUp" component={SignUp} />
               <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
+              <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
+              <Stack.Screen name="WeightInput" component={WeightInput} />
+              <Stack.Screen name="HeightInput" component={HeightInput} />
+              <Stack.Screen name="AgeInput" component={AgeInput} /></>
             </><Stack.Screen name="HomeRecepes" component={HomeRecepes} /></>
         )}
 

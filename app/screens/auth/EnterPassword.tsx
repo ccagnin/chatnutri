@@ -7,9 +7,9 @@ import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme';
 
 const EnterPassword = () => {
-  const translateY = useRef(new Animated.Value(-181)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
-  const [passowrd, setPassword] = useState('');
+  const [password, setPassword] = useState('');
   const route = useRoute();
   const email = (route.params as { email?: string }).email;
   const name  = (route.params as { name?: string }).name;
@@ -25,13 +25,13 @@ const EnterPassword = () => {
       const response = await ApiManager.post('auth/signup', {
         email,
         name,
-        password: passowrd,
+        password: password,
       });
 
       console.log('Resposta da API:', response.data);
 
       if (response.data.access_token) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+        navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email, password });
       } else {
         console.log('Erro ao logar');
       }
