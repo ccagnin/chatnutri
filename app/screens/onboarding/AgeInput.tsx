@@ -83,7 +83,7 @@ const AgeInput = () => {
       );
 
       if (response.data) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes', name });
+        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes', name, token, user });
       } else {
         console.log('Erro ao criar medidas:', response.data);
       }

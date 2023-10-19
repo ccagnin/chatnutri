@@ -3,7 +3,7 @@ import { useFonts } from 'expo-font';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Onboarding from './screens/onboarding/Onboarding';
+import Onboarding from './screens/onboarding/onBoarding';
 import Page from './index';
 import { useAuth } from './context/AuthContext';
 import HomeRecepes from './screens/recipes/HomeRecepes'
@@ -15,6 +15,8 @@ import ObjectivesScreen from './screens/onboarding/MeasuresChat'
 import WeightInput from './screens/onboarding/WeightInput'
 import HeightInput from './screens/onboarding/HeightInput'
 import AgeInput from './screens/onboarding/AgeInput'
+import EditProfile from './screens/profile/EditProfile'
+import Plans from './screens/onboarding/Plans'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -85,11 +87,13 @@ const RootLayoutNav = () => {
               <Stack.Screen name="Auth" component={Auth} />
               <Stack.Screen name="SignUp" component={SignUp} />
               <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
+              <Stack.Screen name="Plans" component={Plans} />
               <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
               <Stack.Screen name="WeightInput" component={WeightInput} />
               <Stack.Screen name="HeightInput" component={HeightInput} />
               <Stack.Screen name="AgeInput" component={AgeInput} /></>
-            </><Stack.Screen name="HomeRecepes" component={HomeRecepes} /></>
+            </><Stack.Screen name="HomeRecepes" component={HomeRecepes} />
+              <Stack.Screen name="EditProfile" component={EditProfile} /></>
         )}
 
       </Stack.Navigator>

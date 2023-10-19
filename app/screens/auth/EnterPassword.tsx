@@ -31,7 +31,7 @@ const EnterPassword = () => {
       console.log('Resposta da API:', response.data);
 
       if (response.data.access_token) {
-        navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email, password });
+        navigation.navigate('Plans', { screen: 'Plans', name, email, password });
       } else {
         console.log('Erro ao logar');
       }
