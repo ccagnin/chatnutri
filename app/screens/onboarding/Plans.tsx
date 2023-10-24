@@ -5,49 +5,45 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomHeaderLong from '../../../components/CustomHeaderLong';
 import { useRoute } from '@react-navigation/native';
 import Theme from '../../../constants/Theme';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 
-type RootStackParamList = {
-  Measurements: undefined;
-  Payments: undefined;
-};
+const Plans = [
+  {
+    id: 1,
+    title: 'Quero testar por 7 dias',
+    value: '',
+    screen: 'MeasuresChat',
+  },
+  {
+    id: 2,
+    title: 'Semanal',
+    value: 'R$ 15/semana',
+    screen: 'Payments',
+  },
+  {
+    id: 3,
+    title: 'Mensal',
+    value: 'R$ 40/mês',
+    screen: 'Payments',
+  },
+  {
+    id: 4,
+    title: 'Anual',
+    value: 'R$ 350/ano',
+    screen: 'Payments',
+  },
+];
 
-type PlansNavigationProp = StackNavigationProp<RootStackParamList>;
+const textOpacity = new Animated.Value(0);
+const translateY = new Animated.Value(-200);
 
-interface PlansProps {
-  navigation: PlansNavigationProp;
-}
-
-const Plans: React.FC<PlansProps> = ({ navigation }) => {
-  const data = [
-    {
-      title: "Quero testar por 7 dias",
-      value: "",
-      screen: "MeasuresChat",
-    },
-    {
-      title: "Semanal",
-      value: "R$ 15/semana",
-      screen: "Payments",
-    },
-    {
-      title: "Mensal",
-      value: "R$ 40/mês",
-      screen: "Payments",
-    },
-    {
-      title: "Anual",
-      value: "R$ 350/ano",
-      screen: "Payments",
-    },
-  ];
-
+function PlansScreen() {
   const route = useRoute();
-  const textOpacity = useState(new Animated.Value(0))[0];
-  const translateY = useState(new Animated.Value(-200))[0];
   const name = (route.params as { name?: string }).name;
   const email = (route.params as { email?: string }).email;
   const password = (route.params as { password?: string }).password;
+  const navigation = useNavigation();
+  const [plan, setPlan] = useState(1);
 
   useEffect(() => {
     Animated.parallel([
@@ -68,17 +64,27 @@ const Plans: React.FC<PlansProps> = ({ navigation }) => {
     ]).start();
   }, []);
 
-  const handleItemPress = (screen: string) => {
-    if (screen === 'MeasuresChat') {
+  const handleItemPress = (planId: number) => {
+    if (planId === 1) {
       navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email, password });
-    } else if (screen === 'Payments') {
-      navigation.navigate('Payments');
+    } else {
+      const selectedPlan = Plans.find((plan) => plan.id === planId);
+      if (selectedPlan) {
+        navigation.navigate('Payments', {
+          screen: 'Payments',
+          selectedPlan,
+          name,
+          email,
+          password,
+        });
+      }
     }
   };
 
+
   const renderItem = ({ item }: any) => {
     return (
-      <TouchableOpacity style={styles.item} onPress={() => handleItemPress(item.screen)}>
+      <TouchableOpacity style={styles.item} onPress={() => handleItemPress(item.id)}>
         <Icon name="circle" size={244} color={Theme.colors.primary} />
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.value}>{item.value}</Text>
@@ -94,7 +100,7 @@ const Plans: React.FC<PlansProps> = ({ navigation }) => {
       <View style={styles.carouselContainer}>
         <Animated.View style={{ opacity: textOpacity, transform: [{ translateY }] }}>
           <Carousel
-            data={data}
+            data={Plans}
             renderItem={renderItem}
             sliderWidth={300}
             itemWidth={300}
@@ -103,13 +109,12 @@ const Plans: React.FC<PlansProps> = ({ navigation }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Theme.colors.background,
-
   },
   header: {
     padding: 20,
@@ -122,24 +127,24 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.background,
     borderRadius: 10,
     marginTop: 314,
-    width: "100%",
+    width: '100%',
   },
   title: {
     fontSize: 24,
     marginVertical: 10,
-    fontFamily: "Poppins-Bold",
+    fontFamily: 'Poppins-Bold',
     color: Theme.colors.lightBrown,
   },
   value: {
     fontSize: 32,
     color: Theme.colors.lightBrown,
-    fontFamily: "Poppins-Bold",
+    fontFamily: 'Poppins-Bold',
   },
   carouselContainer: {
     flex: 1,
-    alignItems: 'center', // Centraliza horizontalmente
-    justifyContent: 'center', // Centraliza verticalmente
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
-export default Plans;
+export default PlansScreen;

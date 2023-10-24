@@ -17,6 +17,8 @@ import HeightInput from './screens/onboarding/HeightInput'
 import AgeInput from './screens/onboarding/AgeInput'
 import EditProfile from './screens/profile/EditProfile'
 import Plans from './screens/onboarding/Plans'
+import Payments from './screens/onboarding/Payments'
+import PaymentConfirmation from './screens/onboarding/PaymentConfirmation'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -74,7 +76,7 @@ const RootLayoutNav = () => {
           headerShown: false,
           cardStyleInterpolator: fadeAnimation,
           transitionSpec: {
-            open: { animation: 'timing', config: { duration: 1000 } }, // Ajuste a duração conforme necessário
+            open: { animation: 'timing', config: { duration: 1000 } },
             close: { animation: 'timing', config: { duration: 1000 } },
           },
         }}
@@ -88,6 +90,8 @@ const RootLayoutNav = () => {
               <Stack.Screen name="SignUp" component={SignUp} />
               <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
               <Stack.Screen name="Plans" component={Plans} />
+              <Stack.Screen name="Payments" component={Payments} />
+              <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmation} />
               <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
               <Stack.Screen name="WeightInput" component={WeightInput} />
               <Stack.Screen name="HeightInput" component={HeightInput} />
