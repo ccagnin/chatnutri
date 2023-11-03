@@ -19,18 +19,30 @@ const Plans = [
     title: 'Semanal',
     value: 'R$ 15/semana',
     screen: 'Payments',
+    price: 15,
+    frequency_type: 'days',
+    frequency: 7,
+    planId: '2c9380848b95ad7e018b96241bb0003d'
   },
   {
     id: 3,
     title: 'Mensal',
     value: 'R$ 40/mês',
     screen: 'Payments',
+    price: 40,
+    frequency_type: 'months',
+    frequency: 1,
+    planId: '2c9380848b95ad8a018b97485027016d'
   },
   {
     id: 4,
     title: 'Anual',
     value: 'R$ 350/ano',
     screen: 'Payments',
+    price: 350,
+    frequency_type: 'months',
+    frequency: 12,
+    planId: '2c9380848b95ad8a018b97492e240171'
   },
 ];
 
