@@ -21,8 +21,8 @@ const Plans = [
     screen: 'Payments',
     price: 15,
     frequency_type: 'days',
-    frequency: 7,
-    planId: '2c9380848b95ad7e018b96241bb0003d'
+    frequency: '7',
+    planId: '2c9380848bade28c018baf8157700138'
   },
   {
     id: 3,
@@ -31,8 +31,8 @@ const Plans = [
     screen: 'Payments',
     price: 40,
     frequency_type: 'months',
-    frequency: 1,
-    planId: '2c9380848b95ad8a018b97485027016d'
+    frequency: '1',
+    planId: '2c9380848bade28c018baf80d78c0134'
   },
   {
     id: 4,
@@ -41,8 +41,8 @@ const Plans = [
     screen: 'Payments',
     price: 350,
     frequency_type: 'months',
-    frequency: 12,
-    planId: '2c9380848b95ad8a018b97492e240171'
+    frequency: '12',
+    planId: '2c9380848bade28c018baf811b3f0135'
   },
 ];
 

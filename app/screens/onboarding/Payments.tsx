@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import Theme from '../../../constants/Theme'
-import { mask, unMask } from 'react-native-mask-text'
+import Theme from '../../../constants/Theme';
+import { mask, unMask } from 'react-native-mask-text';
 import { ApiManager } from '../../api/ApiManager';
 
 const Payments = ({ route, navigation }) => {
-  // const client = new MercadoPagoConfig(({ accessToken: 'TEST-5897592314352105-052411-4a75ffe5a50e3eb58be90eedc6112846-151729385' }))
   const email = (route.params as { email?: string }).email;
   const password = (route.params as { password?: string }).password;
+  const name = (route.params as { name?: string }).name;
   const selectedPlan = (route.params as { selectedPlan?: any }).selectedPlan;
 
   const [paymentData, setPaymentData] = useState({
@@ -21,9 +21,7 @@ const Payments = ({ route, navigation }) => {
     frequencyType: selectedPlan.frequency_type,
     frequency: selectedPlan.frequency,
     planId: selectedPlan.planId,
-    userId: '',
-    email: '',
-  })
+  });
 
   const getToken = async () => {
     try {
@@ -33,12 +31,14 @@ const Payments = ({ route, navigation }) => {
       });
 
       if (response.data && response.data.token) {
+        console.log('token', response.data.token);
         return response.data.token;
       } else {
-        console.log('Erro ao logar');
+        console.error('Erro ao logar', response.data);
+        throw new Error('Erro ao logar');
       }
     } catch (error) {
-      console.error('Error fetching token:', error);
+      console.error('Erro ao obter o token:', error);
       throw error;
     }
   };
@@ -56,49 +56,68 @@ const Payments = ({ route, navigation }) => {
       const user = response.data;
       return user;
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Erro ao buscar usuário:', error);
       throw error;
     }
-  }
+  };
 
   const handlePayment = async () => {
-    const token = getToken()
-    const user = await fetchUser()
-    if (paymentData.name !== '' && paymentData.identificationNumber !== '' &&
-      paymentData.identificationType !== '' && paymentData.card_number !== '' && paymentData.security_code !== '' &&
-      paymentData.expiration_date !== '') {
-        setPaymentData({ ...paymentData, userId: user.id })
-        setPaymentData({ ...paymentData, email: user.email })
-        const response = await ApiManager.post(
-          'users/payment/create', paymentData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          }
-        )
-        const res = response.data
+    try {
+      const token = await getToken();
+      console.log('token', token);
+      const user = await fetchUser();
+      console.log('user', user);
+
+      if (
+        paymentData.name !== '' &&
+        paymentData.identificationNumber !== '' &&
+        paymentData.identificationType !== '' &&
+        paymentData.card_number !== '' &&
+        paymentData.security_code !== '' &&
+        paymentData.expiration_date !== ''
+      ) {
+        const paymentDataWithUserId = {
+          ...paymentData,
+          userId: user.id,
+          email: user.email,
+          security_code: parseInt(paymentData.security_code),
+        };
+
+        console.log('paymentDataWithUserId', paymentDataWithUserId);
+
+        const response = await ApiManager.post('users/payment/create', paymentDataWithUserId, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const res = response.data;
 
         if (res.error === false) {
-          alert(res.message)
-          navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' })
+          alert(res.message);
+          if (res.status === 200) {
+            navigation.navigate('PaymentConfirmation', { screen: 'PaymentConfirmation', name, email, password });
+          }
         } else {
-          alert(res.message)
+          alert(res.message);
+        }
+      } else {
+        if (paymentData.name == '' || paymentData.identificationNumber == '' || paymentData.identificationType == '') {
+          alert('Informe os dados do titular do cartão.');
         }
 
-    } else {
-
-      if (paymentData.name !== '' || paymentData.identificationNumber !== '' || paymentData.identificationType !== '') {
-        alert('Informe os dados do títular do cartão.')
+        if (paymentData.card_number == '' && paymentData.security_code == '' && paymentData.expiration_date == '') {
+          alert('Informe os dados do cartão.');
+        }
       }
-
-
-      if (paymentData.card_number !== '' && paymentData.security_code !== '' && paymentData.expiration_date !== '') {
-        alert('Informe os dados do cartão.')
+    } catch (error: any) {
+      if (error.response) {
+        // Se a exceção tiver uma resposta da API
+        console.error('Resposta da API:', error.response.data);
+        console.error('Status de resposta da API:', error.response.status);
+      console.error('Erro ao processar pagamento:', error);
+      alert('Erro ao processar pagamento. Verifique os dados e tente novamente.');
       }
     }
-
-    navigation.navigate('PaymentConfirmation', { screen: 'PaymentConfirmation', name, email, password });
   };
 
   return (
@@ -108,6 +127,13 @@ const Payments = ({ route, navigation }) => {
       <Text style={styles.planValue}>{selectedPlan?.value}</Text>
 
       <Text style={styles.paymentText}>Informações de Pagamento:</Text>
+      <TextInput
+        placeholder="Nome do Titular do Cartão"
+        placeholderTextColor="#646464"
+        value={paymentData.name}
+        onChangeText={(text) => setPaymentData({ ...paymentData, name: text })}
+        style={{ width: '100%' }}
+      />
       <TextInput
         placeholder="Número do Cartão"
         placeholderTextColor={'#646464'}
