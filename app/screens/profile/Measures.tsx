@@ -51,7 +51,6 @@ const Meansures = () => {
     const handlerFocus = ({ inputRef, setDisable }) => {
         setDisable(true)
         setTimeout(() => {
-            console.log(inputRef.current)
             inputRef.current?.focus();
         }, 0);
     }

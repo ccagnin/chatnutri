@@ -40,6 +40,7 @@ const PlanContent = ({ props }) => {
 
 const Content = () => {
   const [form, setForm] = useState({
+    id: null,
     name: null,
     email: null,
   })
@@ -54,7 +55,7 @@ const Content = () => {
         },
       })
         .then(r => {
-          setForm({ email: r.data.email, name: r.data.name })
+          setForm({ id: r.data.id, email: r.data.email, name: r.data.name })
         })
     })
   }, []);
