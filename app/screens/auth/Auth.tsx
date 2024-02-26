@@ -6,6 +6,8 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme'
 
+import * as SecureStore from 'expo-secure-store';
+
 const Auth = () => {
   const translateY = useRef(new Animated.Value(-181)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -24,6 +26,7 @@ const Auth = () => {
       });
 
       if (response.data.token) {
+        await SecureStore.setItemAsync('token', response.data.token);
         navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
       } else {
         console.log('Erro ao logar');

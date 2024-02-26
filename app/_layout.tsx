@@ -7,6 +7,7 @@ import Onboarding from './screens/onboarding/onBoarding';
 import Page from './index';
 import { useAuth } from './context/AuthContext';
 import HomeRecepes from './screens/recipes/HomeRecepes'
+import WeekDay from './screens/recipes/WeekDay'
 import Auth from './screens/auth/Auth'
 import { ApiManager } from './api/ApiManager'
 import SignUp from './screens/auth/SignUp'
@@ -97,7 +98,10 @@ const RootLayoutNav = () => {
               <Stack.Screen name="HeightInput" component={HeightInput} />
               <Stack.Screen name="AgeInput" component={AgeInput} /></>
             </><Stack.Screen name="HomeRecepes" component={HomeRecepes} />
-              <Stack.Screen name="EditProfile" component={EditProfile} /></>
+              <Stack.Screen name="EditProfile" component={EditProfile} />
+              <Stack.Screen name="WeekDay" component={WeekDay} />
+              
+              </>
         )}
 
       </Stack.Navigator>
