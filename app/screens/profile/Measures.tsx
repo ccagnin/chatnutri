@@ -44,7 +44,7 @@ const Meansures = () => {
     
 
     const handlerBlur = (setState) => {
-        sendMensures({ form })
+        //sendMensures({ form })
         setState(false)
     }
 

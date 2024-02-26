@@ -6,8 +6,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Onboarding from './screens/onboarding/onBoarding';
 import Page from './index';
 import { useAuth } from './context/AuthContext';
-import HomeRecepes from './screens/recipes/HomeRecepes'
-import WeekDay from './screens/recipes/WeekDay'
+
+
 import Auth from './screens/auth/Auth'
 import { ApiManager } from './api/ApiManager'
 import SignUp from './screens/auth/SignUp'
@@ -16,10 +16,15 @@ import ObjectivesScreen from './screens/onboarding/MeasuresChat'
 import WeightInput from './screens/onboarding/WeightInput'
 import HeightInput from './screens/onboarding/HeightInput'
 import AgeInput from './screens/onboarding/AgeInput'
-import EditProfile from './screens/profile/EditProfile'
+
 import Plans from './screens/onboarding/Plans'
 import Payments from './screens/onboarding/Payments'
 import PaymentConfirmation from './screens/onboarding/PaymentConfirmation'
+
+// after auth
+import HomeRecepes from './screens/recipes/HomeRecepes'
+import EditProfile from './screens/profile/EditProfile'
+import WeekDay from './screens/recipes/WeekDay'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -52,22 +57,6 @@ const RootLayoutNav = () => {
   });
 
   const { authState, onLogout } = useAuth();
-
-  const emailExists = async (email: string) => {
-    try {
-      const response = await ApiManager.post('users/checkEmail', {
-        email,
-      });
-      console.log('Resposta da API no layout:', response.data);
-
-      const emailExists = response.data.emailExists;
-      console.log('Email existe?', emailExists);
-
-      return emailExists;
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   return (
     <NavigationContainer independent={true}>

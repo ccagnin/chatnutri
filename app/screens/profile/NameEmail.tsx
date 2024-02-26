@@ -8,6 +8,7 @@ import { ApiManager } from '../../api/ApiManager';
 import * as SecureStore from 'expo-secure-store';
 
 function sendForm({ form }) {
+
     const token = SecureStore.getItemAsync('token');
     token.then((t) => {
         ApiManager.patch('users/profile/edit', form, {
@@ -17,8 +18,7 @@ function sendForm({ form }) {
             },
         })
             .then(r => {
-                // console.log(r.data)
-                //console.log('success')
+                console.log('success')
             })
             .catch(e => {
                 console.log(e.response.data)
