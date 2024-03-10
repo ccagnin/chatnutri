@@ -152,8 +152,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 10,
-        borderTopEndRadius: 20,
-        borderTopStartRadius: 20,
+        borderRadius: 20,
+        // borderTopEndRadius: 20,
+        // borderTopStartRadius: 20,
         flexDirection: 'row',
     },
     calories: {
@@ -197,7 +198,6 @@ const styles = StyleSheet.create({
         flex:1,
     },
     cardCollapseContainer: {
-        minHeight: 400,
         flexDirection: 'column',
     },
     buttonCollapseContainer: {

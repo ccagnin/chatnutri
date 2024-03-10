@@ -47,9 +47,7 @@ const RenderList = ({ props }) => {
   const navigation = useNavigation();
   const handleDayButtonClick = (index: any) => {
     props.setSelectedDay(props.weeklyMenu[index]);
-    
     navigation.navigate('WeekDay', { day: props.selectedDay, weekDay: index.replace('-feira', '').replace(':', '')});
-    //props.setModalVisible(true);
   };
 
   const list = []
