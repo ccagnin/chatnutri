@@ -44,7 +44,7 @@ const Meansures = () => {
     
 
     const handlerBlur = (setState) => {
-        //sendMensures({ form })
+        sendMensures({ form })
         setState(false)
     }
 
@@ -74,7 +74,7 @@ const Meansures = () => {
         <View style={styles.container}>
             <Text style={styles.headerLabel}>Minhas medidas</Text>
             <View>
-                <View style={styles.containerInput}>
+                <View style={[styles.row, styles.containerInput]}>
                     <Text style={styles.labelInput}>
                         Peso
                     </Text>
@@ -94,8 +94,8 @@ const Meansures = () => {
                     </View>
                     <Icon onPress={() => handlerFocus({ inputRef: initWeightRef, setDisable: setDisabledInitWeight })} name="edit" size={26} color="#D4FFDC" />
                 </View>
-                <View style={styles.containerInput}>
-                    <Text style={styles.labelInput}>
+                <View style={[styles.row]}>
+                    <Text style={styles.labelAltura}>
                         Altura
                     </Text>
                     <View>
@@ -112,7 +112,6 @@ const Meansures = () => {
                         />
                         <Text style={styles.textInInput}>cm</Text>
                     </View>
-                    <Icon onPress={() => handlerFocus({ inputRef: heightRef, setDisable: setDisabledheight })} name="edit" size={26} color="#D4FFDC" />
                 </View>
             </View>
         </View>
@@ -124,8 +123,10 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
-    containerInput: {
+    row:{
         flexDirection: 'row',
+    },
+    containerInput: {
         justifyContent: 'space-between',
     },
     headerLabel: {
@@ -134,6 +135,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Medium',
         fontWeight: 'bold',
         marginBottom: '10%',
+    },
+    labelAltura: {
+        width: '30%',
+        color: Theme.colors.lightBrown,
+        fontSize: 24,
+        fontFamily: 'Poppins-Medium',
+        fontWeight: 'bold',
+        marginBottom: '5%',
     },
     labelInput: {
         width: '25%',
@@ -151,6 +160,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#D4FFDC',
         color: '#047460',
         fontSize: 20,
+
         textAlign: 'center',
     },
     textInInput: {

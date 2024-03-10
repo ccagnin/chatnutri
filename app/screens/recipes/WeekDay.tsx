@@ -44,15 +44,39 @@ const MealPortion = ({ portion }) => {
 }
 
 const MealCard = ({ snack }) => {
-    //console.log(snack['Macros:'])
+    const [isExpanded, setIsExpanded] = useState(false);
+    const height = useRef(new Animated.Value(0)).current;
+
+    const toggleExpand = () => {
+        setIsExpanded(!isExpanded);
+        Animated.timing(height, {
+            toValue: isExpanded ? 0 : 200, // Altura final quando expandido
+            duration: 300, // Duração da animação em milissegundos
+            useNativeDriver: false, // useNativeDriver deve ser false para propriedades não suportadas pelo driver nativo
+        }).start();
+    };
+
     return (
-        <View style={styles.mealCardContainer}>
-            <MealCalories calories={185} />
-            <View style={styles.portionsContainer}>
-                <MealPortion portion={snack['Macros:']['Carboidratos']} />
-                <MealPortion portion={snack['Macros:']['Gordura']} />
-                <MealPortion portion={snack['Macros:']['Proteínas']} />
+        <View style={styles.cardCollapseContainer}>
+            <View style={styles.mealCardContainer}>
+                <MealCalories calories={185} />
+                <View style={styles.portionsContainer}>
+                    <MealPortion portion={snack['Macros:']['Carboidratos']} />
+                    <MealPortion portion={snack['Macros:']['Gordura']} />
+                    <MealPortion portion={snack['Macros:']['Proteínas']} />
+                </View>
+
             </View>
+            {/* <View>
+                <Animated.View style={[styles.contentCollapse, { height }, { overflow: 'hidden' }]}>
+                    <Text>Refeição</Text>
+                </Animated.View>
+                <View style={styles.buttonCollapseContainer}>
+                    <TouchableOpacity onPress={toggleExpand} style={styles.buttonCollapse}>
+                        <Text style={styles.buttonTextCollapse}>{isExpanded ? 'Fechar refeição' : 'Ver refeição'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View> */}
         </View>
     )
 }
@@ -78,33 +102,7 @@ const SnackList = ({ snacks }) => {
 
 const Content = () => {
     const route = useRoute();
-    //const { day } = route.params;
-    const day = {
-        "Almoço": {
-            "Ingredientes": "Frango grelhado com quinoa e legumes cozidos",
-            "Macros:": {
-                "Carboidratos": "30g",
-                "Gordura": "10g",
-                "Proteínas": "40g",
-            },
-        },
-        "Café da manhã": {
-            "Ingredientes": "Omelete de claras com espinafre e queijo cottage",
-            "Macros:": {
-                "Carboidratos": "5g",
-                "Gordura": "8g",
-                "Proteínas": "25g",
-            },
-        },
-        "Janta": {
-            "Ingredientes": "Salada de folhas verdes com salmão grelhado",
-            "Macros:": {
-                "Carboidratos": "10g",
-                "Gordura": "15g",
-                "Proteínas": "30g",
-            },
-        },
-    }
+    const { day } = route.params;
     return (
         <View style={styles.contentConteiner}>
             <ScrollView style={styles.scrollContainer}>
@@ -154,7 +152,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 10,
-        borderRadius: 20,
+        borderTopEndRadius: 20,
+        borderTopStartRadius: 20,
         flexDirection: 'row',
     },
     calories: {
@@ -195,7 +194,38 @@ const styles = StyleSheet.create({
     scrollContainer: {
         width: '95%',
         marginBottom: '21%',
-    }
+        flex:1,
+    },
+    cardCollapseContainer: {
+        minHeight: 400,
+        flexDirection: 'column',
+    },
+    buttonCollapseContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    buttonCollapse: {
+        height: 26,
+        backgroundColor: Theme.colors.lightGreen,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+        marginTop: -12,
+    },
+    buttonTextCollapse: {
+        color: Theme.colors.primary,
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    contentCollapse: {
+        borderTopEndRadius: 0,
+        borderTopStartRadius: 0,
+        width: '100%',
+        backgroundColor: Theme.colors.primary,
+        padding: 20,
+        borderRadius: 5,
+    },
 })
 
 export default Day;
