@@ -12,6 +12,11 @@ import * as SecureStore from 'expo-secure-store';
 import Meansures from './Measures';
 import NameEmail from './NameEmail';
 
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { useNavigation } from 'expo-router';
+
+
+
 const HeaderContent = () => {
   return (
     <View style={styles.headerContainer}>
@@ -21,18 +26,23 @@ const HeaderContent = () => {
   )
 }
 
-const PlanContent = ({ props }) => {
+function goToPaymentScreen() {
+  //navigation.navigate('PaymentScreen', {})
+}
+
+const PlanContent = ({ }) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.containerPlan}>
       <Text style={styles.textPlan}>Plano</Text>
-      <View>
+      <View style={[styles.row, styles.containerInput]}>
         <TextInput
           style={styles.planInput}
           placeholder={''}
           placeholderTextColor={'#fff'}
-          onChangeText={(val) => props.setPlan({ ...props.plan, planName: val })}
           editable={false}
         />
+        <Icon onPress={() => navigation.navigate('PaymentScreen', {})} name="edit" size={26} color="#D4FFDC" />
       </View>
     </View>
   )
@@ -68,7 +78,7 @@ const Content = () => {
         {/* Edit Plan */}
         <PlanContent props={{ plan, setPlan }} />
       </View>
-      <View style={{marginTop: '5%'}}>
+      <View style={{ marginTop: '5%' }}>
         <Meansures />
       </View>
     </View>
@@ -127,7 +137,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingHorizontal: '5%',
     backgroundColor: '#B51A32',
-  }
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  containerInput: {
+    width: '65%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 })
 
 export default EditProfile

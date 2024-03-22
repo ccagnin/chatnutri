@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
         marginBottom: '10%',
     },
     labelAltura: {
-        width: '30%',
+        width: '29%',
         color: Theme.colors.lightBrown,
         fontSize: 24,
         fontFamily: 'Poppins-Medium',

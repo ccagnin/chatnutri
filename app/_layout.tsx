@@ -26,6 +26,9 @@ import HomeRecepes from './screens/recipes/HomeRecepes'
 import EditProfile from './screens/profile/EditProfile'
 import WeekDay from './screens/recipes/WeekDay'
 
+// payment methods
+import PaymentScreen from './screens/stripe/PaymentScreen'
+
 export const unstable_settings = {
   initialRouteName: 'index',
 };
@@ -72,25 +75,27 @@ const RootLayoutNav = () => {
         }}
       >
         <Stack.Screen name="index" component={Page} />
-        { authState.authenticated ? (
+        {authState.authenticated ? (
           <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
         ) : (
-          <><><><><Stack.Screen name="Onboarding" component={Onboarding} />
-              <Stack.Screen name="Auth" component={Auth} />
-              <Stack.Screen name="SignUp" component={SignUp} />
-              <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
-              <Stack.Screen name="Plans" component={Plans} />
-              <Stack.Screen name="Payments" component={Payments} />
-              <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmation} />
-              <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
-              <Stack.Screen name="WeightInput" component={WeightInput} />
-              <Stack.Screen name="HeightInput" component={HeightInput} />
-              <Stack.Screen name="AgeInput" component={AgeInput} /></>
-            </><Stack.Screen name="HomeRecepes" component={HomeRecepes} />
-              <Stack.Screen name="EditProfile" component={EditProfile} />
-              <Stack.Screen name="WeekDay" component={WeekDay} />
-              
-              </>
+          <>
+            <Stack.Screen name="Onboarding" component={Onboarding} />
+            <Stack.Screen name="Auth" component={Auth} />
+            <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="EnterPassword" component={EnterPassword} />
+            <Stack.Screen name="Plans" component={Plans} />
+            <Stack.Screen name="Payments" component={Payments} />
+            <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmation} />
+            <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
+            <Stack.Screen name="WeightInput" component={WeightInput} />
+            <Stack.Screen name="HeightInput" component={HeightInput} />
+            <Stack.Screen name="AgeInput" component={AgeInput} />
+            <Stack.Screen name="HomeRecepes" component={HomeRecepes} />
+            <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="WeekDay" component={WeekDay} />
+            <Stack.Screen options={{headerShown: true, title: 'Planos e pagamento'}} name="PaymentScreen" component={PaymentScreen} />
+          </>
+
         )}
 
       </Stack.Navigator>
