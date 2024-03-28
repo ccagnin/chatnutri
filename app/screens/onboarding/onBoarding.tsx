@@ -20,7 +20,7 @@ const Onboarding = () => {
       });
       console.log('Resposta da API:', response.data);
 
-      const emailExists = response.data.emailExists;
+      const emailExists = response.data;
       console.log('Email existe?', emailExists);
 
       const navigateToScreen = emailExists ? 'Auth' : 'SignUp';

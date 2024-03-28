@@ -6,7 +6,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Onboarding from './screens/onboarding/onBoarding';
 import Page from './index';
 import { useAuth } from './context/AuthContext';
-import HomeRecepes from './screens/recipes/HomeRecepes'
+
+
 import Auth from './screens/auth/Auth'
 import { ApiManager } from './api/ApiManager'
 import SignUp from './screens/auth/SignUp'
@@ -15,10 +16,18 @@ import ObjectivesScreen from './screens/onboarding/MeasuresChat'
 import WeightInput from './screens/onboarding/WeightInput'
 import HeightInput from './screens/onboarding/HeightInput'
 import AgeInput from './screens/onboarding/AgeInput'
-import EditProfile from './screens/profile/EditProfile'
+
 import Plans from './screens/onboarding/Plans'
 import Payments from './screens/onboarding/Payments'
 import PaymentConfirmation from './screens/onboarding/PaymentConfirmation'
+
+// after auth
+import HomeRecepes from './screens/recipes/HomeRecepes'
+import EditProfile from './screens/profile/EditProfile'
+import WeekDay from './screens/recipes/WeekDay'
+
+// payment methods
+import PaymentScreen from './screens/stripe/PaymentScreen'
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -52,22 +61,6 @@ const RootLayoutNav = () => {
 
   const { authState, onLogout } = useAuth();
 
-  const emailExists = async (email: string) => {
-    try {
-      const response = await ApiManager.post('users/checkEmail', {
-        email,
-      });
-      console.log('Resposta da API no layout:', response.data);
-
-      const emailExists = response.data.emailExists;
-      console.log('Email existe?', emailExists);
-
-      return emailExists;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   return (
     <NavigationContainer independent={true}>
       <Stack.Navigator
@@ -82,22 +75,27 @@ const RootLayoutNav = () => {
         }}
       >
         <Stack.Screen name="index" component={Page} />
-        { authState.authenticated ? (
+        {authState.authenticated ? (
           <Stack.Screen name='HomeRecepes' component={HomeRecepes} />
         ) : (
-          <><><><><Stack.Screen name="Onboarding" component={Onboarding} />
-              <Stack.Screen name="Auth" component={Auth} />
-              <Stack.Screen name="SignUp" component={SignUp} />
-              <Stack.Screen name="EnterPassword" component={EnterPassword} /></>
-              <Stack.Screen name="Plans" component={Plans} />
-              <Stack.Screen name="Payments" component={Payments} />
-              <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmation} />
-              <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
-              <Stack.Screen name="WeightInput" component={WeightInput} />
-              <Stack.Screen name="HeightInput" component={HeightInput} />
-              <Stack.Screen name="AgeInput" component={AgeInput} /></>
-            </><Stack.Screen name="HomeRecepes" component={HomeRecepes} />
-              <Stack.Screen name="EditProfile" component={EditProfile} /></>
+          <>
+            <Stack.Screen name="Onboarding" component={Onboarding} />
+            <Stack.Screen name="Auth" component={Auth} />
+            <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="EnterPassword" component={EnterPassword} />
+            <Stack.Screen name="Plans" component={Plans} />
+            <Stack.Screen name="Payments" component={Payments} />
+            <Stack.Screen name="PaymentConfirmation" component={PaymentConfirmation} />
+            <Stack.Screen name="MeasuresChat" component={ObjectivesScreen} />
+            <Stack.Screen name="WeightInput" component={WeightInput} />
+            <Stack.Screen name="HeightInput" component={HeightInput} />
+            <Stack.Screen name="AgeInput" component={AgeInput} />
+            <Stack.Screen name="HomeRecepes" component={HomeRecepes} />
+            <Stack.Screen name="EditProfile" component={EditProfile} />
+            <Stack.Screen name="WeekDay" component={WeekDay} />
+            <Stack.Screen options={{headerShown: true, title: 'Planos e pagamento'}} name="PaymentScreen" component={PaymentScreen} />
+          </>
+
         )}
 
       </Stack.Navigator>
