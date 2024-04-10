@@ -64,7 +64,8 @@ const Content = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then(r => {
+        .then(async r => {
+          await SecureStore.setItemAsync('name', r.data.name);
           setForm({ id: r.data.id, email: r.data.email, name: r.data.name })
         })
     })

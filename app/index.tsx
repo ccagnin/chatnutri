@@ -7,6 +7,9 @@ import Onboarding from './screens/onboarding/Onboarding';
 import Theme from '../constants/Theme'
 import { useAuth } from './context/AuthContext';
 
+import * as SecureStore from 'expo-secure-store';
+import JWT from 'expo-jwt';
+
 const Page = () => {
   const animationIn = FadeInUp.springify()
     .damping(30)
@@ -20,19 +23,46 @@ const Page = () => {
   const navigation = useNavigation();
   const { authState } = useAuth();
 
+  const isTokenValid = (token) => {
+    try {
+      const decodedToken = JWT.decode(token, 'secret');
+      return decodedToken && decodedToken.exp > Date.now() / 1000;
+    } catch (error) {
+      console.log(error)
+      return false;
+    }
+  };
+
+  const checkAuth = async () => {
+    
+    const token = await SecureStore.getItemAsync('token');
+    const isValid = isTokenValid(token);
+    if (token && isValid) {
+      navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+    } else {
+      navigation.navigate('Onboarding', { screen: 'Onboarding' });
+    }
+  }
+
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (authState.authenticated) {
-        console.log('autenticado')
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes'});
-      } else {
-        console.log('nao autenticado')
-        navigation.navigate('Onboarding', { screen: 'Onboarding' });
-      }
-    }, 5000);
+      checkAuth()
+    }, 5000)
+  }, [])
 
-    return () => clearTimeout(timeout);
-  }, [authState.authenticated, navigation]);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     if (authState.authenticated) {
+  //       console.log('autenticado')
+  //       navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+  //     } else {
+  //       console.log('nao autenticado')
+  //       navigation.navigate('Onboarding', { screen: 'Onboarding' });
+  //     }
+  //   }, 5000);
+
+  //   return () => clearTimeout(timeout);
+  // }, [authState.authenticated, navigation]);
 
   return (
     <View style={styles.container}>
