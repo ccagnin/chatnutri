@@ -10,20 +10,6 @@ initStripe({
     publishableKey: 'sua_chave_publica_stripe',
 });
 
-function getPlans() {
-    //ApiStripe.get()
-}
-
-const isTokenValid = (token) => {
-    try {
-        const decodedToken = JWT.decode(token, 'secret');
-        return decodedToken && decodedToken.email;
-    } catch (error) {
-        console.log(error)
-        return false;
-    }
-};
-
 
 function CardSelectPlan({ props, isSelected, handlePlanSelected }) {
 
@@ -51,10 +37,12 @@ function PaymentScreen() {
     const [subscriptionId, setSubscriptionId] = useState(null);
 
     // payment functions
-    
+
     // Função para obter os parâmetros do pagamento do servidor backend
     const fetchPaymentSheetParams = async () => {
         try {
+            const name = await SecureStore.getItemAsync('name');
+            const email = await SecureStore.getItemAsync('email');
             const response = await fetch('http://192.168.15.2:4000/pay', {
                 method: 'POST',
                 headers: {
@@ -64,7 +52,7 @@ function PaymentScreen() {
                 body: JSON.stringify({
                     name,
                     email,
-                    price_id,
+                    selectedPlan,
                 }),
             });
 
@@ -113,13 +101,16 @@ function PaymentScreen() {
         setLoadingPayment(false); // Marca o pagamento como carregado
     };
 
-
+    useEffect(() => {
+        initPayment()
+    }, []);
     // end payment functions
 
     // subscription
     // Função para salvar a assinatura no servidor backend e associar o subscriptionId ao ID do usuário
     const saveSubscription = async (subscriptionId) => {
         try {
+            const userId = await SecureStore.getItemAsync('userId');
             const response = await fetch('http://rota.com/save-subscription', { //Essa rota é a da API principal, não da API de pagamentos
                 method: 'POST',
                 headers: {
@@ -202,14 +193,12 @@ function PaymentScreen() {
                             textColor: '#000000',
                         }}
                         style={styles.containerCreditCardPayment}
-                        onCardChange={(cardDetails) => {
-                            console.log('cardDetails', cardDetails);
-                        }}
                         postalCodeEnabled={false}
                     />
                     <Button
                         title="Pagar"
-                    //onPress={handlePayment}
+                        onPress={createSubscription}
+                        disabled={!ready}
                     />
                 </View>
             </View>

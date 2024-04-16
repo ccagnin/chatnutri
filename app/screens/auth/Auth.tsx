@@ -14,7 +14,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
   const route = useRoute();
-  const email = (route.params as { email?: string }).email;
+  const email = (route.params as { email?: string }).email || '';
 
   const navigation = useNavigation();
 
@@ -27,6 +27,7 @@ const Auth = () => {
 
       if (response.data.token) {
         await SecureStore.setItemAsync('token', response.data.token);
+        await SecureStore.setItemAsync('email', email);
         navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
       } else {
         console.log('Erro ao logar');

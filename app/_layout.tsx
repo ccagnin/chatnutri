@@ -2,14 +2,12 @@ import React from 'react';
 import { useFonts } from 'expo-font';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Onboarding from './screens/onboarding/onBoarding';
 import Page from './index';
 import { useAuth } from './context/AuthContext';
 
 
 import Auth from './screens/auth/Auth'
-import { ApiManager } from './api/ApiManager'
 import SignUp from './screens/auth/SignUp'
 import EnterPassword from './screens/auth/EnterPassword'
 import ObjectivesScreen from './screens/onboarding/MeasuresChat'

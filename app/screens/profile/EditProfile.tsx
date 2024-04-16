@@ -66,6 +66,7 @@ const Content = () => {
       })
         .then(async r => {
           await SecureStore.setItemAsync('name', r.data.name);
+          await SecureStore.setItemAsync('userId', r.data.id);
           setForm({ id: r.data.id, email: r.data.email, name: r.data.name })
         })
     })
