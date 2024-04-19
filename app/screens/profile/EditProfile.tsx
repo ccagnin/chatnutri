@@ -65,9 +65,10 @@ const Content = () => {
         },
       })
         .then(async r => {
-          await SecureStore.setItemAsync('name', r.data.name);
-          await SecureStore.setItemAsync('userId', r.data.id);
+          // await SecureStore.setItemAsync('name', r.data.name);
+          // await SecureStore.setItemAsync('userId', r.data.id);
           setForm({ id: r.data.id, email: r.data.email, name: r.data.name })
+          // console.log(r.data.name)
         })
     })
   }, []);
@@ -75,7 +76,7 @@ const Content = () => {
 
   return (
     <View style={styles.container}>
-      <NameEmail showform={form} />
+      <NameEmail showForm={form} />
       <View>
         {/* Edit Plan */}
         <PlanContent props={{ plan, setPlan }} />

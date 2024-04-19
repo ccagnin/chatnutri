@@ -72,15 +72,15 @@ const Content = () => {
 
   const fetchWeeklyMenu = async () => {
     try {
-      const token = await SecureStore.getItemAsync('token');
-      const response = await ApiManager.get('menu/weekly-menu', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // const token = await SecureStore.getItemAsync('token');
+      // const response = await ApiManager.get('menu/weekly-menu', {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
 
-      const weeklyMenu = response.data;
-      setWeeklyMenu(weeklyMenu);
+      // const weeklyMenu = response.data;
+      // setWeeklyMenu(weeklyMenu);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching weekly menu:', error);

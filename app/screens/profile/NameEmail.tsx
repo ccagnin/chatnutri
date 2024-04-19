@@ -7,7 +7,7 @@ import { ApiManager } from '../../api/ApiManager';
 
 import * as SecureStore from 'expo-secure-store';
 
-function sendForm({ form }) {
+function sendForm({ form }:any) {
 
     const token = SecureStore.getItemAsync('token');
     token.then((t) => {
@@ -26,21 +26,21 @@ function sendForm({ form }) {
     })
 }
 
-const NameEmail = ({ showform }) => {
+const NameEmail = ({ showForm }:any) => {
     const [form, setForm] = useState({ name: '', id: null });
     const [disabledName, setDisabledName] = useState(false);
     const inputRef = useRef(null)
 
-    const handlerBlur = (setState) => {
+    const handlerBlur = (setState:any) => {
         sendForm({ form })
         setState(false)
     }
 
     useEffect(() => {
-        setForm({ name: showform.name, id: showform.id })
-    }, [showform])
+        setForm({ name: showForm.name, id: showForm.id })
+    }, [showForm])
 
-    const handlerFocus = ({ inputRef }) => {
+    const handlerFocus = ({ inputRef }:any) => {
         setDisabledName(true)
         setTimeout(() => {
             inputRef.current?.focus();
@@ -63,7 +63,7 @@ const NameEmail = ({ showform }) => {
                 <Icon onPress={() => handlerFocus({ inputRef })} name="edit" size={26} color={Theme.colors.lightGreen} />
             </View>
             <View>
-                <Text style={styles.textEmail}>{showform.email}</Text>
+                {/* <Text style={styles.textEmail}>{showForm.email}</Text> */}
             </View>
         </View>
     )
