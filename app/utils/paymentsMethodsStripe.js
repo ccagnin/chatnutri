@@ -2,7 +2,7 @@ import { usePaymentSheet } from "@stripe/stripe-react-native";
 import { useState, useEffect } from "react";
 import * as SecureStore from 'expo-secure-store';
 
-export const usePayment = (plan, userId, name, email) => {
+export const usePayment = (plan) => {
   const [ready, setReady] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const {initPaymentSheet, presentPaymentSheet} = usePaymentSheet();
@@ -81,6 +81,8 @@ export const usePayment = (plan, userId, name, email) => {
 
   return { ready, loadingPayment, createSubscription };
 }
+
+// ARRUMAR DEPOIS PARA SALVAR NO BANCO DE DADOS
 
 // const createSubscription = async () => {
 //     const {error} = await presentPaymentSheet();
