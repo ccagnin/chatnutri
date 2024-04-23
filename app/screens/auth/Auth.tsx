@@ -5,6 +5,9 @@ import AuthInput from '../../../components/AuthInput';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme'
+import axios from 'axios';
+
+import * as SecureStore from 'expo-secure-store';
 
 const Auth = () => {
   const translateY = useRef(new Animated.Value(-181)).current;
@@ -12,19 +15,28 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
   const route = useRoute();
-  const email = (route.params as { email?: string }).email;
+  const email = (route.params as { email?: string }).email || '';
 
   const navigation = useNavigation();
+  const url = 'https://pineapp-api-staging-staging.up.railway.app/';
 
   const login = async () => {
     try {
-      const response = await ApiManager.post('auth/login', {
+      const response = await axios.post(url + 'auth/login', {
         email,
         password,
       });
 
+      console.log('Resposta da API:', response.data)
+
       if (response.data.token) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+        await SecureStore.setItemAsync('token', response.data.token);
+        await SecureStore.setItemAsync('email', email);
+        if (response.data.isSubscribed) {
+          navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+        } else {
+          navigation.navigate('Plans', { screen: 'Plans' });
+        }
       } else {
         console.log('Erro ao logar');
       }

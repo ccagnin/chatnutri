@@ -2,17 +2,20 @@ import { StyleSheet, View, Text, StatusBar, StyleProp, ViewStyle } from 'react-n
 import React from 'react';
 import Theme from '../constants/Theme';
 
-export const CustomHeader = () => {
+export const CustomHeader = ({ content }) => {
   return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.content}>
+        {typeof content === 'string' ? <Text>{content}</Text> : content}
       </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 132,
+    minHeight: 132,
     borderBottomEndRadius: 45,
     borderBottomStartRadius: 45,
     flex: 0,
@@ -23,5 +26,10 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
+
   } as any,
+  content:{
+    flex: 1,
+    justifyContent: 'flex-end',
+  }
 });

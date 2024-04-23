@@ -1,11 +1,15 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, StatusBar, Image } from 'react-native';
 import Animated, { FadeInUp, FadeOut } from 'react-native-reanimated';
 import logo from '../assets/images/ChatNutri_logo.png';
 import { useNavigation } from '@react-navigation/native';
-import Onboarding from './screens/onboarding/Onboarding';
 import Theme from '../constants/Theme'
 import { useAuth } from './context/AuthContext';
+import { isSubscribed } from './utils/isSubscribed';
+
+import * as SecureStore from 'expo-secure-store';
+import isTokenValid from './utils/isTokenValid';
+
 
 const Page = () => {
   const animationIn = FadeInUp.springify()
@@ -20,19 +24,44 @@ const Page = () => {
   const navigation = useNavigation();
   const { authState } = useAuth();
 
+  const checkAuth = async () => {
+    await SecureStore.deleteItemAsync('token'); // Limpa o token do SecureStore
+    const token = await SecureStore.getItemAsync('token');
+    console.log('Token:', token); // Imprime o valor do token
+    const isValid = isTokenValid(token);
+    if (isValid.valid) {
+      await SecureStore.setItemAsync('email', isValid.email);
+      console.log('autenticado')
+      const subscribed = await isSubscribed(isValid.email); // Verifica se o usuário está inscrito
+      if (subscribed) {
+        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+      } else {
+        navigation.navigate('Plans', { screen: 'Plans' }); // Navega para a tela de planos se o usuário não estiver inscrito
+      }
+    } else {
+      navigation.navigate('Onboarding', { screen: 'Onboarding' });
+    }
+  }
+
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (authState.authenticated) {
-        console.log('autenticado')
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes'});
-      } else {
-        console.log('nao autenticado')
-        navigation.navigate('Onboarding', { screen: 'Onboarding' });
-      }
-    }, 5000);
+      checkAuth()
+    }, 5000)
+  }, [])
 
-    return () => clearTimeout(timeout);
-  }, [authState.authenticated, navigation]);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     if (authState.authenticated) {
+  //       console.log('autenticado')
+  //       navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+  //     } else {
+  //       console.log('nao autenticado')
+  //       navigation.navigate('Onboarding', { screen: 'Onboarding' });
+  //     }
+  //   }, 5000);
+
+  //   return () => clearTimeout(timeout);
+  // }, [authState.authenticated, navigation]);
 
   return (
     <View style={styles.container}>
