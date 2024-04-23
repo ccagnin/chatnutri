@@ -10,7 +10,7 @@ interface AuthProps {
 }
 
 const TOKEN_KEY = 'jwt';
-export const API_URL = 'http://192.168.15.8:3333';
+export const API_URL = 'https://pineapp-api-staging-staging.up.railway.app/';
 const AuthContext = createContext<AuthProps>({
   authState: { token: null, authenticated: null },
   onRegister: async () => {},

@@ -3,31 +3,15 @@ import { View, Button, TextInput, Alert, Text, StyleSheet, TouchableOpacity, Scr
 import { CardField, StripeProvider, initStripe, usePaymentSheet } from '@stripe/stripe-react-native';
 import PlatformPayLocalButton from './PlatformPayLocalButton';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 
-import {initPayment} from '../../utils/paymentsMethodsStripe'
-import {createSubscription} from '../../utils/subscriptionMethodsStripe'
+// import {initPayment} from '../../utils/paymentsMethodsStripe'
+// import {createSubscription} from '../../utils/subscriptionMethodsStripe'
 
 initStripe({
-    publishableKey: 'sua_chave_publica_stripe',
+    publishableKey: 'pk_test_51Or2CoJb0HiN0pQ4JmPUUk5Xa2MO4kCsMTT7UcodyNt8Nigd8SoB5IO1egCTWOrVUDk0VbygKybfbCtm38RUid4y00dPJP7Iio',
 });
-
-
-function CardSelectPlan({ props, isSelected, handlePlanSelected }: any) {
-    return (
-        <TouchableOpacity style={isSelected == props.id ? styles.selectedCard : styles.cardContainer} onPress={() => handlePlanSelected(props.id)}>
-            {isSelected == props.id && <FontAwesome name="check-circle" size={24} color="green" style={{
-                position: 'absolute',
-                right: 5,
-                top: 5,
-            }} />}
-            <Text style={styles.planText}>{props.name}</Text>
-            <Text style={styles.valuePlanText}>{props.value.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-            })}</Text>
-        </TouchableOpacity>
-    );
-}
 
 function PaymentScreen() {
     // payment
@@ -35,65 +19,145 @@ function PaymentScreen() {
     const [loadingPayment, setLoadingPayment] = useState(false);
     const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
     const [subscriptionId, setSubscriptionId] = useState(null);
-    const [plans, setPlans] = useState<{ id: string; name: string; value: number }[]>([]);
-
-    const [selectedPlan, setSelectedPlan] = useState(null)
-    const handlePlanSelected = (plan_id: any) => {
-        if (plan_id === selectedPlan) {
-            setSelectedPlan(null)
-            return
-        }
-        setSelectedPlan(plan_id)
-    }
-    // end plans
+    const route = useRoute();
+    const { plan } = route.params as { plan: any };
+    console.log('routeparams', route.params);
+    console.log('selectedPlan', plan.title);
 
     useEffect(() => {
-        setPlans([
-            { id: 'price_1Or2MeJb0HiN0pQ4TbG4eMiT', name: 'Plano semanal', value: 5 },
-            { id: 'price_1Or2MeJb0HiN0pQ4rYTyZuZm', name: 'Plano mensal', value: 20 },
-            { id: 'price_1Or2MeJb0HiN0pQ4j8pwoBzv', name: 'Plano anual', value: 240 }
-        ]);
-        initPayment({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady})
+        initPayment()
+        if (subscriptionId) {
+            console.log('subscriptionId', subscriptionId);
+        }
     }, []);
+
+    const initPayment = async () => {
+        setLoadingPayment(true);
+        const {setupIntent, ephemeralKey, customer } = await fetchPaymentSheetParams();
+        const {error} = await initPaymentSheet({
+          customerId: customer,
+          customerEphemeralKeySecret: ephemeralKey,
+          setupIntentClientSecret: setupIntent,
+          merchantDisplayName: 'Pine App',
+          allowsDelayedPaymentMethods: true,
+          returnURL: 'example://stripe-redirect',
+        });
+        if (error) {
+          // Exibição de alerta em caso de erro
+          Alert.alert(`Error code: ${error.code}`, error.message);
+        } else {
+          setReady(true); // Marca o pagamento como pronto
+        }
+        setLoadingPayment(false); // Marca o pagamento como carregado
+      };
+
+      const fetchPaymentSheetParams = async () => {
+        try {
+          const response = await fetch('http://192.168.15.4:4000/pay', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: await SecureStore.getItemAsync('name'),
+              email: await SecureStore.getItemAsync('email'),
+              price_id: plan.price_id,
+            }),
+          });
+
+          console.log('response', response);
+
+          if (!response.ok) {
+            throw new Error('Erro ao buscar parâmetros do pagamento');
+          }
+
+          // Extração dos parâmetros da resposta da requisição
+          const { setupIntent, ephemeralKey, customer, subscriptionId } = await response.json();
+          setSubscriptionId(subscriptionId);
+          console.log('subscriptionId', subscriptionId);
+
+          return {
+            setupIntent,
+            ephemeralKey,
+            customer,
+            subscriptionId,
+          };
+        } catch (error) {
+          console.error('Erro ao buscar parâmetros do pagamento:', error);
+          throw error;
+        }
+      }
+
+      // Função para criar a assinatura ao pressionar o botão "Subscribe"
+      const createSubscription = async () => {
+        const {error} = await presentPaymentSheet();
+        if (error) {
+          Alert.alert(`Error code: ${error.code}`, error.message);
+        }
+        // } else {
+        //   try {
+        //     await saveSubscription(subscriptionId);
+        //     Alert.alert('Success', 'Payment successfully processed');
+        //   } catch (error) {
+        //     console.error('Erro ao salvar a assinatura:', error);
+        //     Alert.alert('Error', 'Failed to save subscription');
+        //   }
+        // }
+      };
+
+      // Função para salvar a assinatura no servidor backend e associar o subscriptionId ao ID do usuário
+    //   const saveSubscription = async (subscriptionId: string) => {
+    //     try {
+    //       const response = await fetch('http://rota.com/save-subscription', { //Essa rota é a da API principal, não da API de pagamentos
+    //         method: 'POST',
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //           subscriptionId,
+    //           userId: userId,
+    //         }),
+    //       });
+    //       if (!response.ok) {
+    //         throw new Error('Erro ao salvar a assinatura no banco de dados');
+    //       }
+    //     } catch (error) {
+    //       console.error('Erro ao salvar a assinatura no banco de dados:', error);
+    //       throw error;
+    //     }
+    //   };
 
     return (
         <StripeProvider
-            publishableKey="pk_test_XKUpwPvvEnNxMsSzoLm8H3i8"
+          publishableKey="pk_test_51Or2CoJb0HiN0pQ4JmPUUk5Xa2MO4kCsMTT7UcodyNt8Nigd8SoB5IO1egCTWOrVUDk0VbygKybfbCtm38RUid4y00dPJP7Iio"
         >
-            <View style={styles.container}>
-                <View>
-                    <Text style={styles.labelPayment}>Selecione o plano</Text>
-                    {plans.length !== 0 &&
-                        <View style={styles.plansContainer}>
-                            <CardSelectPlan props={plans[0]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                            <CardSelectPlan props={plans[1]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                            <CardSelectPlan props={plans[2]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                        </View>
-                    }
-                </View>
-                <View style={{ height: 400 }}>
-                    {/* <View style={styles.googlePayContainer}>
-                    <View><Text style={styles.labelPayment}>Pagar com Google pay</Text></View>
-                    <PlatformPayLocalButton />
-                </View> */}
-                    <View><Text style={styles.labelPayment}>Pagar com cartão de crédito</Text></View>
-                    <CardField
-                        cardStyle={{
-                            backgroundColor: '#FFFFFF',
-                            textColor: '#000000',
-                        }}
-                        style={styles.containerCreditCardPayment}
-                        postalCodeEnabled={false}
-                    />
-                    <Button
-                        title="Pagar"
-                        onPress={() => createSubscription(subscriptionId, presentPaymentSheet)}
-                        disabled={!ready}
-                    />
-                </View>
+          <View style={styles.container}>
+            <View>
+              <Text style={styles.labelPayment}>Plano selecionado: {plan ? plan.title : 'Carregando...'}</Text>
             </View>
+            <View style={{ height: 400 }}>
+              <View><Text style={styles.labelPayment}>Pagar com cartão de crédito</Text></View>
+              <CardField
+                cardStyle={{
+                  backgroundColor: '#FFFFFF',
+                  textColor: '#000000',
+                }}
+                style={styles.containerCreditCardPayment}
+                postalCodeEnabled={false}
+              />
+            <Button
+                title="Pagar"
+                onPress={async () => {
+                    // Verifique se o pagamento está pronto antes de apresentar a folha de pagamento
+                    if (!loadingPayment && ready) {
+                    await createSubscription();
+                    }
+                }}
+            />
+            </View>
+          </View>
         </StripeProvider>
-    );
+      );
 }
 
 function Content() {

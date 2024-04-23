@@ -14,6 +14,8 @@ const EnterPassword = () => {
   const email = (route.params as { email?: string }).email;
   const name  = (route.params as { name?: string }).name;
 
+  const url = 'https://pineapp-api-staging-staging.up.railway.app/'
+
   const navigation = useNavigation();
 
   const handleInputChange = (text: string) => {
@@ -22,7 +24,7 @@ const EnterPassword = () => {
 
   const createUser = async () => {
     try {
-      const response = await ApiManager.post('auth/signup', {
+      const response = await ApiManager.post(url + 'auth/signup', {
         email,
         name,
         password: password,

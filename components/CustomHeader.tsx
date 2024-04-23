@@ -7,7 +7,7 @@ export const CustomHeader = ({ content }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.content}>
-        {content && content}
+        {typeof content === 'string' ? <Text>{content}</Text> : content}
       </View>
     </View>
   );
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    
+
   } as any,
   content:{
     flex: 1,

@@ -5,6 +5,7 @@ import AuthInput from '../../../components/AuthInput';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme';
+import * as SecureStore from 'expo-secure-store';
 
 const SignUp = () => {
   const translateY = useRef(new Animated.Value(-181)).current;
@@ -15,8 +16,9 @@ const SignUp = () => {
 
   const navigation = useNavigation();
 
-  const handleInputChange = (text: string) => {
+  const handleInputChange = async (text: string) => {
     setName(text);
+    await SecureStore.setItemAsync('name', name);
   };
 
   const navigateToNextScreen = () => {
@@ -57,7 +59,7 @@ const SignUp = () => {
       </Animated.View>
       <Animated.View style={[styles.textContainer, { opacity: opacity }]}>
         <AuthInput
-          text='Como você gostaria de ser chamado?'
+          text='Como você gostaria de ser chamadoo?'
           placeholder='Nome'
           buttonText='Próximo'
           onChangeText={handleInputChange}
