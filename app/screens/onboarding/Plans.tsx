@@ -48,12 +48,12 @@ const translateY = new Animated.Value(-200);
 function PlansScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const [plan, setPlan] = useState(null); // Inicialize plan como null
+  const [plan, setPlan] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(true); // Adicione um novo estado para rastrear quando os dados do usuário estão carregando
+  const [loading, setLoading] = useState(true);
 
-  const payment = usePayment(plan, name, email); // Inicialize payment como null
+  const payment = usePayment(plan, name, email);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,8 +64,8 @@ function PlansScreen() {
       if (isMounted) {
         setName(storedName);
         setEmail(storedEmail);
-        setLoading(false); // Defina loading como false depois que os dados do usuário são recuperados
-        const payment = usePayment(plan, storedName, storedEmail); // Inicialize payment com os dados do usuário
+        setLoading(false);
+        const payment = usePayment(plan, storedName, storedEmail);
       }
     };
 
@@ -108,7 +108,7 @@ function PlansScreen() {
       if (storedName && storedEmail) {
         setName(storedName);
         setEmail(storedEmail);
-        setPlan(selectedPlan); // Atualize o estado do plano com o plano selecionado
+        setPlan(selectedPlan);
         try {
           await payment.createSubscription();
           navigation.navigate('WeightInput', { screen: 'WeightInput' });
