@@ -9,6 +9,7 @@ import { isSubscribed } from './utils/isSubscribed';
 
 import * as SecureStore from 'expo-secure-store';
 import isTokenValid from './utils/isTokenValid';
+import { getToken } from './context/storeToken'
 
 
 const Page = () => {
@@ -24,24 +25,37 @@ const Page = () => {
   const navigation = useNavigation();
   const { authState } = useAuth();
 
+  const navigateToOnboarding = () => {
+    navigation.navigate('Onboarding', { screen: 'Onboarding' });
+  };
+
+  const navigateBasedOnSubscription = async (email: string) => {
+    const subscribed = await isSubscribed(email);
+    if (subscribed) {
+      navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+    } else {
+      navigation.navigate('Plans', { screen: 'Plans' });
+    }
+  };
+
   const checkAuth = async () => {
-    await SecureStore.deleteItemAsync('token'); // Limpa o token do SecureStore
-    const token = await SecureStore.getItemAsync('token');
-    console.log('Token:', token); // Imprime o valor do token
+    const token = await getToken();
+    console.log('token', token);
+
+    if (!token) {
+      navigateToOnboarding();
+      return;
+    }
+
     const isValid = isTokenValid(token);
     if (isValid.valid) {
       await SecureStore.setItemAsync('email', isValid.email);
-      console.log('autenticado')
-      const subscribed = await isSubscribed(isValid.email); // Verifica se o usuário está inscrito
-      if (subscribed) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
-      } else {
-        navigation.navigate('Plans', { screen: 'Plans' }); // Navega para a tela de planos se o usuário não estiver inscrito
-      }
+      console.log('autenticado');
+      await navigateBasedOnSubscription(isValid.email);
     } else {
-      navigation.navigate('Onboarding', { screen: 'Onboarding' });
+      navigateToOnboarding();
     }
-  }
+  };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
