@@ -5,6 +5,9 @@ import CustomHeaderLong from '../../../components/CustomHeaderLong';
 import AuthInput from '../../../components/AuthInput';
 import Theme from '../../../constants/Theme';
 import { ApiManager } from '../../api/ApiManager';
+import { getUserProfile } from '../../utils/getUserProfile'
+import axios from 'axios'
+import { getToken } from '../../context/storeToken'
 
 const AgeInput = () => {
   const [age, setAge] = useState('');
@@ -18,56 +21,18 @@ const AgeInput = () => {
   const objective = (route.params as { objective?: number }).objective;
   const weight = (route.params as { weight?: number }).weight;
   const height = (route.params as { height?: number }).height;
-  const email = (route.params as { email?: string }).email;
-  const password = (route.params as { password?: string }).password;
 
-  console.log (name, objective, weight, height, email, password);
-
-  const getToken = async () => {
-    try {
-      const response = await ApiManager.post('auth/login', {
-        email,
-        password,
-      });
-
-      if (response.data && response.data.token) {
-        return response.data.token;
-      } else {
-        console.log('Erro ao logar');
-      }
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      throw error;
-    }
-  };
-
-  const fetchUser = async () => {
-    try {
-      const token = await getToken();
-
-      const response = await ApiManager.get('users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const user = response.data;
-      return user;
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      throw error;
-    }
-  }
+  const url = 'https://pineapp-api-staging-staging.up.railway.app/';
 
   const handleNext = async () => {
+    console.log('Age:', age);
     try {
       const ageNumber = parseInt(age);
+      const user = await getUserProfile();
       const token = await getToken();
 
-      const user = await fetchUser();
-
-      const response = await ApiManager.post(
-        'users/measures/create',
+      const response = await axios.post(
+        url + 'users/measures/create',
         {
           initWeight: weight,
           height,
@@ -82,16 +47,17 @@ const AgeInput = () => {
         }
       );
 
+      console.log('Response:', response.data);
       if (response.data) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes', name, token, user });
+        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
       } else {
-        console.log('Erro ao criar medidas:', response.data);
+        console.log('Erro ao salvar medidas:', response.data);
       }
     } catch (error) {
       console.log('Erro:', error);
-      alert('Erro ao criar medidas');
+      alert('Erro ao criar medidas do usuário');
     }
-  };
+  }
 
   const handleAgeChange = (text: string) => {
     setAge(text);

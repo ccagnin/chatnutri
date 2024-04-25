@@ -3,9 +3,8 @@ import * as SecureStore from 'expo-secure-store'
 
 const url = 'https://pineapp-api-staging-staging.up.railway.app/'
 
-export const isSubscribed = async () => {
+export const isSubscribed = async (email: string) => {
   try {
-    const email = await SecureStore.getItemAsync('email');
     const response = await axios.get(url + 'users/checkUserByEmail', {
       params: {
         user: email,

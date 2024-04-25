@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import CustomHeaderLong from '../../../components/CustomHeaderLong';
 import AuthInput from '../../../components/AuthInput';
 import Theme from '../../../constants/Theme';
+import * as SecureStore from 'expo-secure-store';
 
 const WeightInput = () => {
   const [weight, setWeight] = useState('');
@@ -12,16 +13,13 @@ const WeightInput = () => {
   const translateY = useRef(new Animated.Value(0)).current;
   const authInputOpacity = useRef(new Animated.Value(0)).current;
   const route = useRoute();
+
   const name = (route.params as { name?: string }).name;
   const objective = (route.params as { objective?: number }).objective;
-  const email = (route.params as { email?: string }).email;
-  const password = (route.params as { password?: string }).password;
 
   const handleNext = () => {
     navigation.navigate('HeightInput', {
       name,
-      email,
-      password,
       objective,
       weight: parseInt(weight),
     });
@@ -30,6 +28,7 @@ const WeightInput = () => {
   const handleWeightChange = (text: string) => {
     setWeight(text);
   };
+
 
   useEffect(() => {
     const delay = setTimeout(() => {

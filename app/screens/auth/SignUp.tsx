@@ -18,7 +18,7 @@ const SignUp = () => {
 
   const handleInputChange = async (text: string) => {
     setName(text);
-    await SecureStore.setItemAsync('name', name);
+    await SecureStore.setItemAsync('name', text);
   };
 
   const navigateToNextScreen = () => {

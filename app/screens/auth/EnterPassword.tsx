@@ -5,6 +5,8 @@ import AuthInput from '../../../components/AuthInput';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme';
+import * as SecureStore from 'expo-secure-store';
+import { storeToken } from '../../context/storeToken'
 
 const EnterPassword = () => {
   const translateY = useRef(new Animated.Value(0)).current;
@@ -33,6 +35,7 @@ const EnterPassword = () => {
       console.log('Resposta da API:', response.data);
 
       if (response.data.access_token) {
+        storeToken(response.data.access_token);
         navigation.navigate('Plans', { screen: 'Plans', name, email, password });
       } else {
         console.log('Erro ao logar');

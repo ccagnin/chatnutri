@@ -8,6 +8,7 @@ import Theme from '../../../constants/Theme';
 import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { usePayment } from '../../utils/paymentsMethodsStripe';
+import { updateUserSubscription } from '../../utils/updateUser'
 
 const Plans = [
   {
@@ -96,22 +97,18 @@ function PlansScreen() {
   }, []);
 
   const handleItemPress = async (planId: number) => {
-    console.log(`Item pressionado: ${planId}`);
     const selectedPlan = Plans.find((p) => p.id === planId);
     if (selectedPlan) {
-      console.log(`Plano selecionado: ${selectedPlan.title}`);
-      console.log(`Iniciando assinatura para priceId: ${selectedPlan.price_id}`);
       const storedName = await SecureStore.getItemAsync('name');
-      console.log(`Nome armazenado: ${storedName}`);
       const storedEmail = await SecureStore.getItemAsync('email');
-      console.log(`Email armazenado: ${storedEmail}`);
       if (storedName && storedEmail) {
         setName(storedName);
         setEmail(storedEmail);
         setPlan(selectedPlan);
         try {
           await payment.createSubscription();
-          navigation.navigate('WeightInput', { screen: 'WeightInput' });
+          await updateUserSubscription();
+          navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name: storedName});
         } catch (error) {
           console.log('Erro ao criar assinatura:', error);
           Alert.alert('Erro ao criar assinatura', 'Ocorreu um erro ao criar a assinatura. Por favor, tente novamente.');
