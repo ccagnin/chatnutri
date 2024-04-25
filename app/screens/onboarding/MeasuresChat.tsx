@@ -13,14 +13,10 @@ const ObjectiveSelectionScreen = () => {
   const opacity = useRef(new Animated.Value(0)).current;
   const [buttonsOpacity] = useState(new Animated.Value(0));
   const [textOpacity] = useState(new Animated.Value(0));
-  const email = (route.params as { email?: string }).email;
-  const password = (route.params as { password?: string }).password;
 
   const handleObjectiveSelection = (objective: number) => {
     navigation.navigate('WeightInput', {
       name,
-      email,
-      password,
       objective,
     });
   };

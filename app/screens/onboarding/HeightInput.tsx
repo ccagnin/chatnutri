@@ -16,14 +16,10 @@ const WeightInput = () => {
   const name = (route.params as { name?: string }).name;
   const objective = (route.params as { objective?: number }).objective;
   const weight = (route.params as { weight?: number }).weight;
-  const email = (route.params as { email?: string }).email;
-  const password = (route.params as { password?: string }).password;
 
   const handleNext = () => {
     navigation.navigate('AgeInput', {
       name,
-      email,
-      password,
       objective,
       weight: parseInt(weight),
       height: parseInt(height),
