@@ -15,19 +15,15 @@ export const CustomHeader = ({ content }) => {
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 132,
-    borderBottomEndRadius: 45,
-    borderBottomStartRadius: 45,
-    flex: 0,
-    backgroundColor: Theme.colors.primary,
-    position: 'absolute',
+    height: 132,
     top: 0,
     left: 0,
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    
-  } as any,
+    borderBottomStartRadius: 45,
+    borderBottomEndRadius: 45,
+  },
   content:{
     flex: 1,
     justifyContent: 'flex-end',

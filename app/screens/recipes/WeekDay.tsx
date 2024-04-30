@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, ScrollView } from 'react-native';
+import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, ScrollView, FlatList } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { useRoute } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
@@ -59,17 +59,17 @@ const MealCard = ({ snack }) => {
     return (
         <View style={styles.cardCollapseContainer}>
             <View style={styles.mealCardContainer}>
-                <MealCalories calories={185} />
+                <MealCalories calories={snack.calories} />
                 <View style={styles.portionsContainer}>
-                    <MealPortion portion={snack['Macros:']['Carboidratos']} />
-                    <MealPortion portion={snack['Macros:']['Gordura']} />
-                    <MealPortion portion={snack['Macros:']['Proteínas']} />
+                    <MealPortion portion={snack.macros.Carboidratos} />
+                    <MealPortion portion={snack.macros.Gordura} />
+                    <MealPortion portion={snack.macros['Proteínas']} />
                 </View>
 
             </View>
             {/* <View>
                 <Animated.View style={[styles.contentCollapse, { height }, { overflow: 'hidden' }]}>
-                    <Text>Refeição</Text>
+                    <Text>Refeição: {snack.ingredients}</Text>
                 </Animated.View>
                 <View style={styles.buttonCollapseContainer}>
                     <TouchableOpacity onPress={toggleExpand} style={styles.buttonCollapse}>
@@ -83,16 +83,15 @@ const MealCard = ({ snack }) => {
 
 const SnackList = ({ snacks }) => {
     const snacksList = []
-    //console.log(snacks)
-    for (let i in snacks) {
+    for (let i in snacks.meals) {
         snacksList.push(
             <View key={i} style={styles.mealContainer}>
                 <View style={styles.headerMeal}>
-                    <Text style={styles.meal}>{i}</Text>
+                    <Text style={styles.meal}>{snacks.meals[i].title}</Text>
                     {/* Time */}
-                    <Text style={styles.mealHour}>Xh</Text>
+                    {/* <Text style={styles.mealHour}>Xh</Text> */}
                 </View>
-                <MealCard snack={snacks[i]} />
+                <MealCard snack={snacks.meals[i]} />
             </View>
         )
     }
@@ -100,14 +99,30 @@ const SnackList = ({ snacks }) => {
     return snacksList
 }
 
+function renderItem({ item }: any) {
+    return (
+        <View style={styles.mealContainer}>
+            <View style={styles.headerMeal}>
+                <Text style={styles.meal}>{item.title}</Text>
+                {/* Time */}
+                {/* <Text style={styles.mealHour}>Xh</Text> */}
+            </View>
+            <MealCard snack={item} />
+        </View>
+    )
+}
+
 const Content = () => {
     const route = useRoute();
     const { day } = route.params;
+    // console.log(day)
     return (
-        <View style={styles.contentConteiner}>
-            <ScrollView style={styles.scrollContainer}>
-                {SnackList({ snacks: day })}
-            </ScrollView>
+        <View style={styles.containerFlatList}>
+            <FlatList
+                data={day.meals}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+            />
         </View>
     )
 }
@@ -119,12 +134,16 @@ const Day = () => {
 }
 
 const styles = StyleSheet.create({
+    containerFlatList: {
+        flex: 1, 
+        marginBottom: 10,
+        marginTop: 10,
+    },
     headerContainer: {
         alignItems: 'center',
     },
     contentConteiner: {
-        marginVertical: '10%',
-        flex: 1,
+        paddingHorizontal: 10,
         alignItems: 'center',
     },
     headerMeal: {
@@ -153,8 +172,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         borderRadius: 20,
-        // borderTopEndRadius: 20,
-        // borderTopStartRadius: 20,
         flexDirection: 'row',
     },
     calories: {
@@ -191,11 +208,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: Theme.colors.primary,
-    },
-    scrollContainer: {
-        width: '95%',
-        marginBottom: '21%',
-        flex:1,
     },
     cardCollapseContainer: {
         flexDirection: 'column',

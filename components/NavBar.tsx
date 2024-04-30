@@ -17,7 +17,7 @@ const BottomNavigationBar = () => {
     navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
   };
 
-  
+
 
   return (
     <View style={styles.container}>
@@ -26,14 +26,14 @@ const BottomNavigationBar = () => {
         <Text style={styles.buttonText}>Editar Perfil</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleRecipes}>
-        <Icon name="book" size={30} color="#004236" style={[styles.icon, route.name == 'HomeRecepes'  && styles.selectedItem]} />
+        <Icon name="book" size={30} color="#004236" style={[styles.icon, route.name == 'HomeRecepes' && styles.selectedItem]} />
         <Text style={styles.buttonText}>Receitas</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleRecipes}>
         <Icon name="calendar" size={30} color="#004236" style={styles.icon} />
         <Text style={styles.buttonText}>Refazer Plano</Text>
       </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button}>
         <Icon name="cutlery" size={30} color={route.name == 'WeekDay' && "white"} style={styles.icon} />
         <Text style={styles.buttonText}>Refeições</Text>
       </TouchableOpacity>
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: Theme.colors.primary,
-    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
