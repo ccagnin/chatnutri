@@ -1,21 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, ScrollView, FlatList, Alert, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Modal, FlatList, Alert, TouchableOpacity } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { useRoute } from '@react-navigation/native';
-import { ApiManager } from '../../api/ApiManager';
-import LoadingScreen from '../loading/LoadingScreen';
-import { isSunday } from 'date-fns';
-// import { TouchableOpacity } from 'react-native-gesture-handler'
-import { CustomHeader } from '../../../components/CustomHeader'
-import NavBar from '../../../components/NavBar'
-
-import * as SecureStore from 'expo-secure-store';
 
 import Layout from '../../layout';
 import TextHeader from '../../../components/TextHeader'
 
 const ModalMeal = (props: any) => {
-    console.log(props)
     return (
         <Modal
             animationType="slide"
@@ -49,19 +40,17 @@ const ModalMeal = (props: any) => {
 }
 
 const HeaderContent = ({ day }) => {
-
-    //console.log(typeof day)
     
-    // const dailyGoal = day.reduce((prev, cur) => {
-    //     prev += cur.calories
+    const dailyGoal = day.meals.reduce((prev, cur) => {
+        prev += cur.calories
 
-    //     return prev
-    // }, 0)
-    //const { weekDay } = route.params;
+        return prev
+    }, 0)
     return (
         <View style={styles.headerContainer}>
             <TextHeader text={day.day.replace(':', '').replace('-feira', '') || ''} />
-            <TextHeader text={`Sua meta diaria é calorias`} />
+            <TextHeader text={`Sua meta diaria é`} />
+            <TextHeader text={`${dailyGoal} calorias`} />
         </View>
     )
 }
