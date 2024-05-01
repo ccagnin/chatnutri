@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing } from 'react-native';
+import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, FlatList } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
@@ -8,58 +8,15 @@ import { isSunday } from 'date-fns';
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { CustomHeader } from '../../../components/CustomHeader'
 import NavBar from '../../../components/NavBar'
+import tempData from '../../utils/tempData'
 
 import * as SecureStore from 'expo-secure-store';
 
 import Layout from '../../layout';
 
-const ModalDay = ({ props }) => {
-  console.log(props.selectedDay)
-  return (
-    <Modal
-      animationType="slide"
-      transparent={false}
-      visible={props.isModalVisible}
-      onRequestClose={() => {
-        props.setModalVisible(!props.isModalVisible);
-      }}
-    >
-      <View>
-        <Text style={styles.cardapioTitle}>
-          Cardápio para o dia {props.selectedDay?.day || ''}:
-        </Text>
-        <Text>Café da manhã: {props.selectedDay?.cafeDaManha || ''}</Text>
-        <Text>Almoço: {props.selectedDay?.almoco || ''}</Text>
-        <Text>Jantar: {props.selectedDay?.jantar || ''}</Text>
-        <Button
-          title="Fechar"
-          onPress={() => {
-            props.setModalVisible(!props.isModalVisible);
-            props.setSelectedDay(null);
-          }}
-        />
-      </View>
-    </Modal>
-  )
-}
+import SkeletonLoader from '../../../components/Skeleton';
 
-const RenderList = ({ props }) => {
-  const navigation = useNavigation();
-  const handleDayButtonClick = (index: any) => {
-    props.setSelectedDay(props.weeklyMenu[index]);
-    navigation.navigate('WeekDay', { day: props.selectedDay, weekDay: index.replace('-feira', '').replace(':', '')});
-  };
-
-  const list = []
-  for (let i in props.weeklyMenu) {
-    list.push(<View key={i} style={styles.dayButton}>
-      <TouchableOpacity onPress={() => handleDayButtonClick(i)}>
-        <Text style={styles.dayText}>{i.replace('-feira', '').replace(':', '')}</Text>
-      </TouchableOpacity>
-    </View>)
-  }
-  return list
-}
+import RenderDay from '../../../components/RenderDayList';
 
 const Content = () => {
   const route = useRoute();
@@ -70,8 +27,11 @@ const Content = () => {
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
+
+
   const fetchWeeklyMenu = async () => {
     try {
+      setLoading(true);
       // const token = await SecureStore.getItemAsync('token');
       // const response = await ApiManager.get('menu/weekly-menu', {
       //   headers: {
@@ -80,8 +40,14 @@ const Content = () => {
       // });
 
       // const weeklyMenu = response.data;
+      // console.log(weeklyMenu)
+      setTimeout(() => {
+        const weeklyMenu = tempData;
+        setWeeklyMenu(weeklyMenu);
+        setLoading(false);
+      }, 3000);
       // setWeeklyMenu(weeklyMenu);
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
       console.error('Error fetching weekly menu:', error);
       setLoading(false);
@@ -96,8 +62,6 @@ const Content = () => {
         fetchWeeklyMenu();
       }
     }, 86400000);
-
-    //console.log(intervalId);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -123,29 +87,44 @@ const Content = () => {
     ]).start();
   }, []);
 
+  const renderItem = ({ item }: any) => {
+    return (
+      <RenderDay props={item} />
+    )
+  };
+
+  const toArray = (data: any) => {
+    return Object.entries(data).map(([day, meals]) => ({
+      day,
+      meals: Object.entries(meals).map(([meal, details]) => ({
+        title: `${meal}`,
+        ingredients: details.Ingredientes,
+        macros: details['Macros:'],
+        calories: details.Calorias
+      })),
+    }));
+  }
+
+  const ordenByWeekDay = (dataArray:any) => dataArray.sort((a:any, b:any) => {
+    const daysOfWeek = ['Segunda-feira:', 'Terça-feira:', 'Quarta-feira:', 'Quinta-feira:', 'Sexta-feira:', 'Sábado:', 'Domingo:'];
+    return daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day);
+  });
+
   return (
     <>
-      {loading && <LoadingScreen />}
-      {!loading && weeklyMenu && (
-        <>
-          {/* <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
-          <CustomHeader content={null} />
-        </Animated.View> */}
-          <View style={styles.cardapioContainer}>
-            <Text style={styles.text}>Cardápio da semana:</Text>
-            {RenderList({ props: { weeklyMenu, setSelectedDay, selectedDay } })}
-          </View>
-          {/* <NavBar /> */}
-        </>
-      )}
-      {/* <ModalDay props={{ isModalVisible, selectedDay, setModalVisible, setSelectedDay }} /> */}
+      <View style={styles.cardapioContainer}>
+        <Text style={styles.text}>Cardápio da semana:</Text>
+        <FlatList
+          data={weeklyMenu && ordenByWeekDay(toArray(weeklyMenu))}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
     </>
   )
 }
 
 const HomeRecepes = () => {
-
-
   return (
     <Layout content={Content()} headerContent={null} />
   );
@@ -176,21 +155,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: Theme.colors.primary,
   },
-  dayButton: {
-    width: 360,
-    height: 58,
-    backgroundColor: Theme.colors.secondary,
-    marginBottom: 10,
-    color: Theme.colors.lightBrown,
-    justifyContent: 'center',
-    borderRadius: 20,
-  },
-  dayText: {
-    marginLeft: 33,
-    color: 'white',
-    fontFamily: 'Poppins-Medium',
-    fontSize: 20,
-  }
 });
 
 export default HomeRecepes;

@@ -28,18 +28,18 @@ const Layout = ({ content, headerContent }) => {
     }, []);
 
     return (
-        
-            <View style={styles.container}>
-                <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
-                    <CustomHeader content={headerContent} />
-                </Animated.View>
-                <View style={styles.contentContainer}>
-                    <View style={styles.contentBody}>
-                        {content && content}
-                    </View>
+
+        <View style={styles.container}>
+            <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
+                <CustomHeader content={headerContent} />
+            </Animated.View>
+            <View style={styles.contentContainer}>
+                <View style={styles.contentBody}>
+                    {content && content}
                 </View>
-                <NavBar />
             </View>
+            <NavBar />
+        </View>
 
     )
 }
@@ -53,15 +53,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     contentBody: {
-        height: '100%',
-        width: '100%',
-        marginVertical: '5%',
+        flex:1,
     },
     header: {
-        height: '10%',
         paddingTop: Platform.OS === 'ios' ? 50 : 10,
         paddingHorizontal: 20,
         backgroundColor: Theme.colors.primary,
+        borderBottomStartRadius: 45,
+        borderBottomEndRadius: 45,
+        
     },
     textContainer: {
         flex: 1,
