@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TextInput } from 'react-native'
 
 import Layout from '../../layout'
 import TextHeader from '../../../components/TextHeader'
-import logo from '../../../assets/images/ChatNutri_logo.png';
+import logo from '../../../assets/images/logo.png';
 import Theme from '../../../constants/Theme';
 import { ApiManager } from '../../api/ApiManager';
 
@@ -20,7 +20,7 @@ import { useNavigation } from 'expo-router';
 const HeaderContent = () => {
   return (
     <View style={styles.headerContainer}>
-      <Image style={styles.logo} source={logo} />
+      <Image source={logo} />
       <TextHeader text={'Meu perfil'} />
     </View>
   )
@@ -97,16 +97,13 @@ const EditProfile = () => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: '2%',
-  },
-  logo: {
-    width: 82,
-    height: 94.5,
+    
   },
   headerContainer: {
     alignItems: 'center',
   },
   constainerText: {
-    marginTop: '10%',
+    marginTop: '5%',
     alignItems: 'center',
   },
   textName: {
@@ -120,13 +117,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   containerPlan: {
-    marginTop: '10%',
+    marginTop: '5%',
     borderRadius: 20,
     backgroundColor: Theme.colors.secondary,
     width: '100%',
     height: 120,
     alignItems: 'center',
     paddingVertical: '5%',
+    
   },
   textPlan: {
     color: 'white',

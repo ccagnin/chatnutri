@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Modal, FlatList, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Modal, FlatList, Alert, TouchableOpacity, Image } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { useRoute } from '@react-navigation/native';
 
 import Layout from '../../layout';
 import TextHeader from '../../../components/TextHeader'
+
+import logo from '../../../assets/images/logo.png';
 
 const ModalMeal = (props: any) => {
     return (

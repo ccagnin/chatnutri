@@ -26,13 +26,13 @@ const BottomNavigationBar = () => {
         <Text style={styles.buttonText}>Editar Perfil</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleRecipes}>
-        <Icon name="book" size={30} color="#004236" style={[styles.icon, route.name == 'HomeRecepes' && styles.selectedItem]} />
-        <Text style={styles.buttonText}>Receitas</Text>
+        <Icon name="home" size={30} color="#004236" style={[styles.icon, route.name == 'HomeRecepes' && styles.selectedItem]} />
+        <Text style={styles.buttonText}>Inicio</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleRecipes}>
+      {/* <TouchableOpacity style={styles.button} onPress={handleRecipes}>
         <Icon name="calendar" size={30} color="#004236" style={styles.icon} />
         <Text style={styles.buttonText}>Refazer Plano</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity style={styles.button}>
         <Icon name="cutlery" size={30} color={route.name == 'WeekDay' && "white"} style={styles.icon} />
         <Text style={styles.buttonText}>Refeições</Text>
@@ -62,8 +62,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 45,
   },
   buttonText: {
-    fontSize: 8,
+    fontSize: 12,
     color: '#004236',
+    fontWeight: 'bold',
   },
   icon: {
     marginBottom: 5,

@@ -1,6 +1,5 @@
-import { StyleSheet, View, Text, StatusBar, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import React from 'react';
-import Theme from '../constants/Theme';
 
 export const CustomHeader = ({ content }) => {
   return (
@@ -15,7 +14,7 @@ export const CustomHeader = ({ content }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 132,
+    minHeight: 132,
     top: 0,
     left: 0,
     right: 0,
@@ -23,9 +22,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderBottomStartRadius: 45,
     borderBottomEndRadius: 45,
+    
   },
   content:{
     flex: 1,
     justifyContent: 'flex-end',
+    
   }
 });

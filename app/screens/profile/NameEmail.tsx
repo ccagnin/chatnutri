@@ -63,7 +63,7 @@ const NameEmail = ({ showForm }:any) => {
                 <Icon onPress={() => handlerFocus({ inputRef })} name="edit" size={26} color={Theme.colors.lightGreen} />
             </View>
             <View>
-                {/* <Text style={styles.textEmail}>{showForm.email}</Text> */}
+                <Text style={styles.textEmail}>{showForm.email}</Text>
             </View>
         </View>
     )
@@ -71,7 +71,7 @@ const NameEmail = ({ showForm }:any) => {
 
 const styles = StyleSheet.create({
     constainerText: {
-        marginTop: '12%',
+        marginTop: '2%',
         alignItems: 'center',
     },
     textName: {

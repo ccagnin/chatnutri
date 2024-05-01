@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { ApiManager } from '../api/ApiManager';
+
+import JWT from 'expo-jwt';
 
 interface AuthProps {
   authState: { token: string | null; authenticated: boolean | null };
@@ -9,8 +12,7 @@ interface AuthProps {
   onLogout: () => Promise<any>;
 }
 
-const TOKEN_KEY = 'jwt';
-export const API_URL = 'http://192.168.15.8:3333';
+const TOKEN_KEY = 'token';
 const AuthContext = createContext<AuthProps>({
   authState: { token: null, authenticated: null },
   onRegister: async () => {},
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const register = async (email: string, password: string) => {
     try {
-      return await axios.post(`${API_URL}/auth/signup`, { email, password });
+      return await ApiManager.post(`/auth/signup`, { email, password });
     } catch (error) {
       return { error: true, message: (error as any).response?.data?.message };
     }
@@ -58,7 +60,7 @@ export const AuthProvider = ({ children }: any) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const response = await ApiManager.post(`/auth/login`, { email, password });
       console.log(response);
 
       setAuthState({ token: response.data.token, authenticated: true });
@@ -79,6 +81,39 @@ export const AuthProvider = ({ children }: any) => {
 
     setAuthState({ token: null, authenticated: false });
   };
+
+  const isTokenValid = (token: string) => {
+    try {
+      const decodedToken = JWT.decode(token, 'secret');
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (decodedToken.exp <= currentTimestamp) {
+        return { valid: false, message: 'Token expirado' };
+      }
+
+      return { valid: true, message: 'Token válido', email: decodedToken.email };
+    } catch (error) {
+      return { valid: false, message: 'Token inválido', error };
+    }
+  };
+
+  const checkTokenValidity = async () => {
+    try {
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (token) {
+        const validity = isTokenValid(token);
+        if (!validity.valid) {
+          // Token inválido, faça o que for necessário (como logout)
+          await logout();
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar a validade do token:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkTokenValidity();
+  }, []);
 
   const value = {
     authState,
