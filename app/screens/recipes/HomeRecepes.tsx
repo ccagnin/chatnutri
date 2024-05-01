@@ -96,7 +96,7 @@ const Content = () => {
   const toArray = (data: any) => {
     return Object.entries(data).map(([day, meals]) => ({
       day,
-      meals: Object.entries(meals).map(([meal, details]) => ({
+      meals: Object.entries(meals).map(([meal, details]: [string, any]) => ({
         title: `${meal}`,
         ingredients: details.Ingredientes,
         macros: details['Macros:'],
