@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, ScrollView, FlatList, Alert, TouchableOpacity, Dimensions } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { useRoute } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import LoadingScreen from '../loading/LoadingScreen';
 import { isSunday } from 'date-fns';
-import { TouchableOpacity } from 'react-native-gesture-handler'
+// import { TouchableOpacity } from 'react-native-gesture-handler'
 import { CustomHeader } from '../../../components/CustomHeader'
 import NavBar from '../../../components/NavBar'
 
@@ -14,14 +14,54 @@ import * as SecureStore from 'expo-secure-store';
 import Layout from '../../layout';
 import TextHeader from '../../../components/TextHeader'
 
-const HeaderContent = () => {
-    const route = useRoute();
+const ModalMeal = (props: any) => {
+    console.log(props)
+    return (
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={props.isActive}
+            onRequestClose={() => {
+                Alert.alert('Modal has been closed.');
+                props.setIsActive(!props.isActive);
+            }}>
+            <TouchableOpacity style={{ flex: 1, zIndex: 9 }} onPress={() => props.setIsActive(false)}>
+
+            </TouchableOpacity>
+            <View style={styles.modalContainer}>
+                <TouchableOpacity style={{ width: '100%', height: '10%', alignItems: 'center', justifyContent: 'center' }} onPressIn={() => props.setIsActive(false)}>
+                    <View style={{ width: '40%', height: '20%', backgroundColor: '#ccc', borderRadius: 999 }}>
+                    </View>
+                </TouchableOpacity>
+                <View style={styles.modalTextContainer}>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{props.activeMeal && props.activeMeal.title}</Text>
+                </View>
+                <Text style={styles.modalTextItemsMacros}>Calorias: {props.activeMeal && props.activeMeal.calories} kcal</Text>
+                <Text style={styles.modalTextItemsMacros}>Carboidratos: {props.activeMeal && props.activeMeal.macros && props.activeMeal.macros.Carboidratos}</Text>
+                <Text style={styles.modalTextItemsMacros}>Gordura: {props.activeMeal && props.activeMeal.macros && props.activeMeal.macros.Gordura}</Text>
+                <Text style={styles.modalTextItemsMacros}>Proteinas: {props.activeMeal && props.activeMeal.macros && props.activeMeal.macros['Proteínas']}</Text>
+                <View>
+                    <Text style={styles.modalTextItemsMacros}>Ingredientes: {props.activeMeal && props.activeMeal.ingredients}</Text>
+                </View>
+            </View>
+        </Modal>
+    )
+}
+
+const HeaderContent = ({ day }) => {
+
+    //console.log(typeof day)
+    
+    // const dailyGoal = day.reduce((prev, cur) => {
+    //     prev += cur.calories
+
+    //     return prev
+    // }, 0)
     //const { weekDay } = route.params;
-    const weekDay = "Segunda"
     return (
         <View style={styles.headerContainer}>
-            <TextHeader text={weekDay || ''} />
-            <TextHeader text={'Sua meta diaria é x calorias'} />
+            <TextHeader text={day.day.replace(':', '').replace('-feira', '') || ''} />
+            <TextHeader text={`Sua meta diaria é calorias`} />
         </View>
     )
 }
@@ -44,20 +84,8 @@ const MealPortion = ({ portion }) => {
 }
 
 const MealCard = ({ snack }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const height = useRef(new Animated.Value(0)).current;
-
-    const toggleExpand = () => {
-        setIsExpanded(!isExpanded);
-        Animated.timing(height, {
-            toValue: isExpanded ? 0 : 200, // Altura final quando expandido
-            duration: 300, // Duração da animação em milissegundos
-            useNativeDriver: false, // useNativeDriver deve ser false para propriedades não suportadas pelo driver nativo
-        }).start();
-    };
-
     return (
-        <View style={styles.cardCollapseContainer}>
+        <View>
             <View style={styles.mealCardContainer}>
                 <MealCalories calories={snack.calories} />
                 <View style={styles.portionsContainer}>
@@ -67,75 +95,61 @@ const MealCard = ({ snack }) => {
                 </View>
 
             </View>
-            {/* <View>
-                <Animated.View style={[styles.contentCollapse, { height }, { overflow: 'hidden' }]}>
-                    <Text>Refeição: {snack.ingredients}</Text>
-                </Animated.View>
-                <View style={styles.buttonCollapseContainer}>
-                    <TouchableOpacity onPress={toggleExpand} style={styles.buttonCollapse}>
-                        <Text style={styles.buttonTextCollapse}>{isExpanded ? 'Fechar refeição' : 'Ver refeição'}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View> */}
         </View>
     )
 }
 
-const SnackList = ({ snacks }) => {
-    const snacksList = []
-    for (let i in snacks.meals) {
-        snacksList.push(
-            <View key={i} style={styles.mealContainer}>
-                <View style={styles.headerMeal}>
-                    <Text style={styles.meal}>{snacks.meals[i].title}</Text>
-                    {/* Time */}
-                    {/* <Text style={styles.mealHour}>Xh</Text> */}
-                </View>
-                <MealCard snack={snacks.meals[i]} />
-            </View>
-        )
-    }
+function renderItem({ item, handleActiveMeal }: any) {
 
-    return snacksList
-}
-
-function renderItem({ item }: any) {
     return (
         <View style={styles.mealContainer}>
             <View style={styles.headerMeal}>
                 <Text style={styles.meal}>{item.title}</Text>
-                {/* Time */}
-                {/* <Text style={styles.mealHour}>Xh</Text> */}
             </View>
             <MealCard snack={item} />
+            <View style={{width: '100%', alignItems: 'center', position: 'absolute', bottom: '25%'}}>
+                <View style={styles.seeMealContainer}>
+                    <TouchableOpacity onPress={() => handleActiveMeal(item)}>
+                        <Text style={styles.seeMealText}>Ver refeição</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     )
 }
 
-const Content = () => {
-    const route = useRoute();
-    const { day } = route.params;
-    // console.log(day)
+const Content = ({ day }) => {
+    
+    const [isActive, setIsActive] = useState(false)
+    const [activeMeal, setActiveMeal] = useState({})
+
+    const handleActiveMeal = (item: any) => {
+        setActiveMeal(item)
+        setIsActive(true)
+    }
     return (
         <View style={styles.containerFlatList}>
             <FlatList
                 data={day.meals}
-                renderItem={renderItem}
+                renderItem={({ item }) => renderItem({ item, handleActiveMeal })}
                 keyExtractor={(item, index) => index.toString()}
             />
+            <ModalMeal isActive={isActive} setIsActive={setIsActive} activeMeal={activeMeal} />
         </View>
     )
 }
 
 const Day = () => {
+    const route = useRoute();
+    const { day } = route.params;
     return (
-        <Layout content={Content()} headerContent={HeaderContent()} />
+        <Layout content={Content({ day })} headerContent={HeaderContent({ day })} />
     )
 }
 
 const styles = StyleSheet.create({
     containerFlatList: {
-        flex: 1, 
+        flex: 1,
         marginBottom: 10,
         marginTop: 10,
     },
@@ -209,35 +223,36 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: Theme.colors.primary,
     },
-    cardCollapseContainer: {
-        flexDirection: 'column',
-    },
-    buttonCollapseContainer: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    buttonCollapse: {
-        height: 26,
+    seeMealContainer: {
+        position: 'absolute',
         backgroundColor: Theme.colors.lightGreen,
-        borderRadius: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-        marginTop: -12,
+        borderRadius: 10,
+        paddingHorizontal: 40,
+        paddingVertical: 5,
+        width: 160,
+
     },
-    buttonTextCollapse: {
+    seeMealText: {
         color: Theme.colors.primary,
         fontSize: 14,
         fontWeight: 'bold',
     },
-    contentCollapse: {
-        borderTopEndRadius: 0,
-        borderTopStartRadius: 0,
+    modalContainer: {
+        height: '50%',
         width: '100%',
         backgroundColor: Theme.colors.primary,
-        padding: 20,
-        borderRadius: 5,
+        borderTopEndRadius: 45,
+        borderTopStartRadius: 45,
+        paddingHorizontal: 10,
     },
+    modalTextContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    modalTextItemsMacros: {
+        fontSize: 16,
+        color: Theme.colors.lightGreen,
+    }
 })
 
 export default Day;
