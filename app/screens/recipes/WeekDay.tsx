@@ -13,11 +13,7 @@ const ModalMeal = (props: any) => {
         <Modal
             animationType="slide"
             transparent={true}
-            visible={props.isActive}
-            onRequestClose={() => {
-                Alert.alert('Modal has been closed.');
-                props.setIsActive(!props.isActive);
-            }}>
+            visible={props.isActive}>
             <TouchableOpacity style={{ flex: 1, zIndex: 9 }} onPress={() => props.setIsActive(false)}>
 
             </TouchableOpacity>

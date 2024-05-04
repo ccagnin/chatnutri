@@ -32,22 +32,23 @@ const Content = () => {
   const fetchWeeklyMenu = async () => {
     try {
       setLoading(true);
-      // const token = await SecureStore.getItemAsync('token');
-      // const response = await ApiManager.get('menu/weekly-menu', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
+      const token = await SecureStore.getItemAsync('token');
+      const response = await ApiManager.get('menu/weekly-menu', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // const weeklyMenu = response.data;
-      // console.log(weeklyMenu)
+      const weeklyMenu = response.data;
+      console.log(weeklyMenu)
+      
+      setWeeklyMenu(weeklyMenu);
+      setLoading(false);
       setTimeout(() => {
         const weeklyMenu = tempData;
         setWeeklyMenu(weeklyMenu);
         setLoading(false);
       }, 3000);
-      // setWeeklyMenu(weeklyMenu);
-      // setLoading(false);
     } catch (error) {
       console.error('Error fetching weekly menu:', error);
       setLoading(false);

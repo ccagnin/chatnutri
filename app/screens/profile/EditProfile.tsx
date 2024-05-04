@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, Image, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Image, TextInput, Modal, TouchableOpacity, ActivityIndicator } from 'react-native'
 
 import Layout from '../../layout'
 import TextHeader from '../../../components/TextHeader'
@@ -15,6 +15,7 @@ import NameEmail from './NameEmail';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from 'expo-router';
 
+import checkAuth from '../../utils/checkAuth';
 
 
 const HeaderContent = () => {
@@ -26,29 +27,94 @@ const HeaderContent = () => {
   )
 }
 
-function goToPaymentScreen() {
-  //navigation.navigate('PaymentScreen', {})
+const ModalCalcelPlan = (props: any) => {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false)
+  const cancelPlan = async () => {
+    // try {
+    //   const token = await SecureStore.getItemAsync('token');
+    //   await ApiManager.post('/cancel', null, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+    //   // Redirect to the initial screen
+    //   navigation.navigate('Auth', {});
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      closeModal()
+    }, 2000);
+  };
+
+  const closeModal = () => {
+    if (!loading) {
+      props.setIsActive(false)
+    }
+  }
+
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={props.isActive}>
+      <TouchableOpacity style={{ flex: 1, zIndex: 9 }} onPress={() => closeModal()}>
+
+      </TouchableOpacity>
+      <View style={styles.modalContainer}>
+        <TouchableOpacity style={{ width: '100%', height: '10%', alignItems: 'center', justifyContent: 'center' }} onPressIn={() => closeModal()}>
+          <View style={{ width: '40%', height: '20%', backgroundColor: '#ccc', borderRadius: 999 }}>
+          </View>
+        </TouchableOpacity>
+        <View>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Você esta prestes a cancelar o seu plano...</Text>
+          <Text style={{ fontSize: 16 }}>Deseja realmente fazer isso?</Text>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+            <TouchableOpacity disabled={loading} onPress={() => closeModal()} style={{ backgroundColor: Theme.colors.secondary, padding: 10, borderRadius: 5, width: '45%' }}>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={{ color: 'white' }}>Não</Text>
+              )}
+
+            </TouchableOpacity>
+            <TouchableOpacity disabled={loading} onPress={() => cancelPlan()} style={{ backgroundColor: '#D4FFDC', padding: 10, borderRadius: 5, width: '45%' }}>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={{ color: 'black' }}>Sim, cancelar</Text>
+              )}
+
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
 }
 
 const PlanContent = ({ }) => {
   const navigation = useNavigation();
+  const [isCancel, setCancel] = useState(false);
   return (
     <View style={styles.containerPlan}>
       <Text style={styles.textPlan}>Plano</Text>
       <View style={[styles.row, styles.containerInput]}>
-        <TextInput
-          style={styles.planInput}
-          placeholder={''}
-          placeholderTextColor={'#fff'}
-          editable={false}
-        />
+        <Icon onPress={() => { setCancel(true) }} name="trash" size={26} color="#D4FFDC" style={{ marginEnd: 20 }} />
         <Icon onPress={() => navigation.navigate('PaymentScreen', {})} name="edit" size={26} color="#D4FFDC" />
       </View>
+      <ModalCalcelPlan isActive={isCancel} setIsActive={setCancel} />
     </View>
   )
 }
 
 const Content = () => {
+  const navigation = useNavigation();
   const [form, setForm] = useState({
     id: null,
     name: null,
@@ -56,21 +122,24 @@ const Content = () => {
   })
 
   const [plan, setPlan] = useState({ userID: null, planID: null, planName: '' })
-  useEffect(() => {
-    const token = SecureStore.getItemAsync('token');
-    token.then((token) => {
-      ApiManager.get('users/profile', {
+
+  const fetchProfile = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const response = await ApiManager.get('users/profile', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-        .then(async r => {
-          // await SecureStore.setItemAsync('name', r.data.name);
-          // await SecureStore.setItemAsync('userId', r.data.id);
-          setForm({ id: r.data.id, email: r.data.email, name: r.data.name })
-          // console.log(r.data.name)
-        })
-    })
+      });
+      setForm({ id: response.data.id, email: response.data.email, name: response.data.name });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth({ navigation });
+    fetchProfile();
   }, []);
 
 
@@ -97,7 +166,7 @@ const EditProfile = () => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: '2%',
-    
+
   },
   headerContainer: {
     alignItems: 'center',
@@ -124,7 +193,7 @@ const styles = StyleSheet.create({
     height: 120,
     alignItems: 'center',
     paddingVertical: '5%',
-    
+
   },
   textPlan: {
     color: 'white',
@@ -144,8 +213,16 @@ const styles = StyleSheet.create({
   },
   containerInput: {
     width: '65%',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalContainer: {
+    height: '50%',
+    width: '100%',
+    backgroundColor: Theme.colors.primary,
+    borderTopEndRadius: 45,
+    borderTopStartRadius: 45,
+    paddingHorizontal: 10,
   },
 })
 
