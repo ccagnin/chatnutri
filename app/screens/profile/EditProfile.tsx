@@ -27,27 +27,42 @@ const HeaderContent = () => {
   )
 }
 
+async function getSubscription(token: any, userId: any) {
+  try {
+    return await ApiManager.get(`/subscription`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+
+    console.log(error.response.data);
+  }
+}
+
 const ModalCalcelPlan = (props: any) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false)
   const cancelPlan = async () => {
-    // try {
-    //   const token = await SecureStore.getItemAsync('token');
-    //   await ApiManager.post('/cancel', null, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-    //   // Redirect to the initial screen
-    //   navigation.navigate('Auth', {});
-    // } catch (error) {
-    //   console.error(error);
-    // }
-    setLoading(true)
-    setTimeout(() => {
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      await ApiManager.post('/cancel', {subscriptionId: props.subscriptionId}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setLoading(false)
-      closeModal()
-    }, 2000);
+      // Redirect to the initial screen
+      navigation.navigate('Auth', {});
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(true)
+    cancelPlan()
+    // setTimeout(() => {
+    //   setLoading(false)
+    //   closeModal()
+    // }, 2000);
   };
 
   const closeModal = () => {
@@ -98,17 +113,29 @@ const ModalCalcelPlan = (props: any) => {
   )
 }
 
-const PlanContent = ({ }) => {
+const PlanContent = ({ subscription }: any) => {
   const navigation = useNavigation();
   const [isCancel, setCancel] = useState(false);
+  
   return (
     <View style={styles.containerPlan}>
       <Text style={styles.textPlan}>Plano</Text>
       <View style={[styles.row, styles.containerInput]}>
-        <Icon onPress={() => { setCancel(true) }} name="trash" size={26} color="#D4FFDC" style={{ marginEnd: 20 }} />
+        <View style={{ justifyContent: 'center' }}>
+          {
+            subscription == null ?
+              <View>
+                <ActivityIndicator size={26} color="white" style={{ position: 'absolute', backgroundColor: 'rgba(52, 52, 52, 0)' }} />
+                <Icon name="trash" size={26} color="#D4FFDC50" style={{ marginEnd: 20 }} />
+              </View> :
+              subscription != "" ?
+                <Icon onPress={() => { setCancel(true) }} name="trash" size={26} color="#D4FFDC" style={{ marginEnd: 20 }} /> :
+                <Icon name="trash" size={26} color="#D4FFDC50" style={{ marginEnd: 20 }} />
+          }
+        </View>
         <Icon onPress={() => navigation.navigate('PaymentScreen', {})} name="edit" size={26} color="#D4FFDC" />
       </View>
-      <ModalCalcelPlan isActive={isCancel} setIsActive={setCancel} />
+      <ModalCalcelPlan isActive={isCancel} setIsActive={setCancel} subscriptionId={subscription} />
     </View>
   )
 }
@@ -122,6 +149,7 @@ const Content = () => {
   })
 
   const [plan, setPlan] = useState({ userID: null, planID: null, planName: '' })
+  const [subscription, setSubscription] = useState(null)
 
   const fetchProfile = async () => {
     try {
@@ -132,10 +160,16 @@ const Content = () => {
         },
       });
       setForm({ id: response.data.id, email: response.data.email, name: response.data.name });
+      userGetSubscription(token, response.data.id)
     } catch (error) {
       console.error(error);
     }
   };
+
+  const userGetSubscription = async (token: any, userId: any) => {
+    const response = await getSubscription(token, userId);
+    setSubscription(response.data)
+  }
 
   useEffect(() => {
     checkAuth({ navigation });
@@ -148,7 +182,7 @@ const Content = () => {
       <NameEmail showForm={form} />
       <View>
         {/* Edit Plan */}
-        <PlanContent props={{ plan, setPlan }} />
+        <PlanContent subscription={subscription} />
       </View>
       <View style={{ marginTop: '5%' }}>
         <Meansures />
