@@ -1,22 +1,19 @@
 import * as SecureStore from 'expo-secure-store';
+import { ApiManager } from '../api/ApiManager';
 
 // Função para obter os parâmetros do pagamento do servidor backend
 const fetchPaymentSheetParams = async ({setSubscriptionId, selectedPlan}) => {
     try {
         const name = await SecureStore.getItemAsync('name');
         const email = await SecureStore.getItemAsync('email');
-        const body = JSON.stringify({
+        const response = await ApiManager.post('/pay', {
             name,
             email,
-            selectedPlan,
-        })
-        const response = await fetch('http://192.168.0.5:4000/pay', {
-            method: 'POST',
+            selectedPlan
+        }, {
             headers: {
                 'Content-Type': 'application/json',
             },
-            // Corpo da requisição com os parâmetros do usuário
-            body,
         });
 
         console.log('response', response);
