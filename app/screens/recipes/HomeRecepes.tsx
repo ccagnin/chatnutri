@@ -1,49 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Platform, Button, Text, Modal, Animated, Easing, FlatList } from 'react-native';
+import { StyleSheet, View, Text, Animated, Easing, FlatList, Platform } from 'react-native';
 import Theme from '../../../constants/Theme';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
-import LoadingScreen from '../loading/LoadingScreen';
 import { isSunday } from 'date-fns';
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { CustomHeader } from '../../../components/CustomHeader'
-import NavBar from '../../../components/NavBar'
-import tempData from '../../utils/tempData'
-
-import * as SecureStore from 'expo-secure-store';
-
+import tempData from '../../utils/tempData';
 import Layout from '../../layout';
-
-import SkeletonLoader from '../../../components/Skeleton';
-
 import RenderDay from '../../../components/RenderDayList';
 
 const Content = () => {
-  const route = useRoute();
   const [loading, setLoading] = useState(true);
   const [weeklyMenu, setWeeklyMenu] = useState<any>(null);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
-
-
 
   const fetchWeeklyMenu = async () => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync('token');
-      const response = await ApiManager.get('menu/weekly-menu', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const weeklyMenu = response.data;
-      console.log(weeklyMenu)
-      
-      setWeeklyMenu(weeklyMenu);
-      setLoading(false);
+      // const token = await SecureStore.getItemAsync('token');
+      // const response = await ApiManager.get('menu/weekly-menu', {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+      // const weeklyMenu = response.data;
+      // setWeeklyMenu(weeklyMenu);
+      // setLoading(false);
       setTimeout(() => {
         const weeklyMenu = tempData;
         setWeeklyMenu(weeklyMenu);
@@ -67,8 +48,6 @@ const Content = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-
-
   useEffect(() => {
     Animated.parallel([
       Animated.timing(translateY, {
@@ -86,12 +65,10 @@ const Content = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [translateY, opacity]);
 
   const renderItem = ({ item }: any) => {
-    return (
-      <RenderDay props={item} />
-    )
+    return <RenderDay props={item} />;
   };
 
   const toArray = (data: any) => {
@@ -101,33 +78,31 @@ const Content = () => {
         title: `${meal}`,
         ingredients: details.Ingredientes,
         macros: details['Macros:'],
-        calories: details.Calorias
+        calories: details.Calorias,
       })),
     }));
-  }
+  };
 
-  const ordenByWeekDay = (dataArray:any) => dataArray.sort((a:any, b:any) => {
+  const ordenByWeekDay = (dataArray: any) => dataArray.sort((a: any, b: any) => {
     const daysOfWeek = ['Segunda-feira:', 'Terça-feira:', 'Quarta-feira:', 'Quinta-feira:', 'Sexta-feira:', 'Sábado:', 'Domingo:'];
     return daysOfWeek.indexOf(a.day) - daysOfWeek.indexOf(b.day);
   });
 
   return (
-    <>
-      <View style={styles.cardapioContainer}>
-        <Text style={styles.text}>Cardápio da semana:</Text>
-        <FlatList
-          data={weeklyMenu && ordenByWeekDay(toArray(weeklyMenu))}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-    </>
-  )
-}
+    <View style={styles.cardapioContainer}>
+      <Text style={styles.text}>Cardápio da semana:</Text>
+      <FlatList
+        data={weeklyMenu && ordenByWeekDay(toArray(weeklyMenu))}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </View>
+  );
+};
 
 const HomeRecepes = () => {
   return (
-    <Layout content={Content()} headerContent={null} />
+    <Layout content={<Content />} headerContent={null} />
   );
 };
 

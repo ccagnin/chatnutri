@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { StyleSheet, Text, View, TextInput } from 'react-native'
 
-import Theme from '../../../constants/Theme';
-import { ApiManager } from '../../api/ApiManager';
+import Theme from '../../../../constants/Theme';
+import { ApiManager } from '../../../api/ApiManager';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import * as SecureStore from 'expo-secure-store';

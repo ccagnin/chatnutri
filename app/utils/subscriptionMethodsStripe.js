@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { ApiManager } from './ApiManager';
+import { ApiManager } from '../api/ApiManager';
 
 // Função para salvar a assinatura no servidor backend e associar o subscriptionId ao ID do usuário
 const saveSubscription = async (subscriptionId) => {

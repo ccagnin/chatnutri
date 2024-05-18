@@ -24,12 +24,16 @@ const Page = () => {
   const { authState } = useAuth();
 
   const checkAuth = async () => {
-    
     const token = await SecureStore.getItemAsync('token');
-    const isValid = isTokenValid(token);
-    if (isValid.valid) {
-      await SecureStore.setItemAsync('email', isValid.email);
-      navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+    if (token) {
+      const isValid = isTokenValid(token);
+
+      if (isValid.valid) {
+        await SecureStore.setItemAsync('email', isValid.email);
+        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+      } else {
+        navigation.navigate('Onboarding', { screen: 'Onboarding' });
+      }
     } else {
       navigation.navigate('Onboarding', { screen: 'Onboarding' });
     }
@@ -40,20 +44,6 @@ const Page = () => {
       checkAuth()
     }, 5000)
   }, [])
-
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     if (authState.authenticated) {
-  //       console.log('autenticado')
-  //       navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
-  //     } else {
-  //       console.log('nao autenticado')
-  //       navigation.navigate('Onboarding', { screen: 'Onboarding' });
-  //     }
-  //   }, 5000);
-
-  //   return () => clearTimeout(timeout);
-  // }, [authState.authenticated, navigation]);
 
   return (
     <View style={styles.container}>
