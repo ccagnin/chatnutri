@@ -1,29 +1,22 @@
-import * as SecureStore from 'expo-secure-store';
-import { ApiManager } from '../api/ApiManager';
+import { ApiStripe } from '../api/ApiManager';
 
 // Função para obter os parâmetros do pagamento do servidor backend
-const fetchPaymentSheetParams = async ({setSubscriptionId, selectedPlan}) => {
+const fetchPaymentSheetParams = async ({setSubscriptionId, selectedPlan, name, email}) => {
     try {
-        const name = await SecureStore.getItemAsync('name');
-        const email = await SecureStore.getItemAsync('email');
-        const response = await ApiManager.post('/pay', {
+        const response = await ApiStripe.post('/pay', {
             name,
             email,
-            selectedPlan
+            price_id:selectedPlan
         }, {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
-        console.log('response', response);
-
-        if (!response.ok) {
-            throw new Error('Erro ao buscar parâmetros do pagamento');
-        }
+        console.log('response', response.data);
 
         // Extração dos parâmetros da resposta da requisição
-        const { setupIntent, ephemeralKey, customer, subscriptionId } = await response.json();
+        const { setupIntent, ephemeralKey, customer, subscriptionId } = response.data;
         setSubscriptionId(subscriptionId);
 
         return {
@@ -33,16 +26,16 @@ const fetchPaymentSheetParams = async ({setSubscriptionId, selectedPlan}) => {
             subscriptionId,
         };
     } catch (error) {
-        console.error('Erro ao buscar parâmetros do pagamento:', error);
+        console.error('Erro ao buscar parâmetros do pagamento:', error.response.data);
         throw error;
     }
 }
 
 // Função para inicializar o pagamento
-export const initPayment = async ({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady}) => {
+export const initPayment = async ({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady, name, email}) => {
     setLoadingPayment(true);
     // Obtenção dos parâmetros do pagamento do servidor backend
-    const { setupIntent, ephemeralKey, customer } = await fetchPaymentSheetParams({setSubscriptionId, selectedPlan});
+    const { setupIntent, ephemeralKey, customer } = await fetchPaymentSheetParams({setSubscriptionId, selectedPlan, name, email});
     // Inicialização da sessão de pagamento com o Stripe
     const { error } = await initPaymentSheet({
         customerId: customer,

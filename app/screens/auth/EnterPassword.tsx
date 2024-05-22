@@ -31,7 +31,7 @@ const EnterPassword = () => {
       console.log('Resposta da API:', response.data);
 
       if (response.data.access_token) {
-        navigation.navigate('Plans', { screen: 'Plans', name, email, password });
+        navigation.navigate('PaymentScreen', { screen: 'PaymentScreen', name, email, isSignup: true });
       } else {
         console.log('Erro ao logar');
       }

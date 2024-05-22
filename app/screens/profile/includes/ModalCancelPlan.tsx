@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-import { ApiManager } from '../../../api/ApiManager';
+import { ApiStripe } from '../../../api/ApiManager';
 import Theme from '../../../../constants/Theme';
 
 const ModalCancelPlan = ({ isActive, setIsActive, subscriptionId }: any) => {
@@ -13,13 +13,15 @@ const ModalCancelPlan = ({ isActive, setIsActive, subscriptionId }: any) => {
         try {
             setLoading(true);
             const token = await SecureStore.getItemAsync('token');
-            await ApiManager.post('/cancel', { subscriptionId }, {
+            await ApiStripe.post('/cancel', { subscriptionId }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
             setLoading(false);
-            navigation.navigate('Auth', {});
+            const name = await SecureStore.getItemAsync('name');
+            const email = await SecureStore.getItemAsync('email');
+            navigation.navigate('PaymentScreen', { name, email, isSignup:false });
         } catch (error) {
             console.error(error);
             setLoading(false);

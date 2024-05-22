@@ -6,9 +6,17 @@ import Theme from '../../../../constants/Theme';
 
 import ModalCancelPlan from './ModalCancelPlan';
 
+import * as SecureStore from 'expo-secure-store';
+
 const PlanContent = ({ subscription }: any) => {
     const navigation = useNavigation();
     const [isCancel, setCancel] = useState(false);
+
+    const handlerPayment = async () => {
+      const name = await SecureStore.getItemAsync('name');
+      const email = await SecureStore.getItemAsync('email');
+      navigation.navigate('PaymentScreen', { name, email, isSignup: false });
+    }
   
     return (
       <View style={styles.containerPlan}>
@@ -26,7 +34,7 @@ const PlanContent = ({ subscription }: any) => {
               <Icon name="trash" size={26} color="#D4FFDC50" style={{ marginEnd: 20 }} />
             )}
           </View>
-          <Icon onPress={() => navigation.navigate('PaymentScreen', {})} name="edit" size={26} color="#D4FFDC" />
+          <Icon onPress={handlerPayment} name="edit" size={26} color="#D4FFDC" />
         </View>
         <ModalCancelPlan isActive={isCancel} setIsActive={setCancel} subscriptionId={subscription} />
       </View>

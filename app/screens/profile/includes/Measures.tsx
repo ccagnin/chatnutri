@@ -65,7 +65,7 @@ const Meansures = () => {
             })
                 .then(r => {
 
-                    setForm({ userId: r.data.userId, measureId: r.data.measureId, age: r.data.age, height: r.data.height, updatedWeight: r.data.initWeight && r.data.updatedWeight})
+                    setForm({ userId: r.data.userId, measureId: r.data.measureId, age: r.data.age, height: r.data.height, updatedWeight: (r.data.initWeight ? r.data.initWeight : "") && r.data.updatedWeight ? r.data.updatedWeight : ""})
                 })
         })
     }, []);
@@ -81,7 +81,7 @@ const Meansures = () => {
                     <View>
                         <TextInput
                             ref={initWeightRef}
-                            value={form.updatedWeight.toString()}
+                            value={form.updatedWeight?.toString()}
                             style={styles.planInput}
                             placeholder={'Digite o peso'}
                             placeholderTextColor={'#047460'}
@@ -101,9 +101,8 @@ const Meansures = () => {
                     <View>
                         <TextInput
                             ref={heightRef}
-                            value={form.height.toString()}
+                            value={form.height?.toString()}
                             style={styles.planInput}
-                            placeholder={'Digite a altura'}
                             placeholderTextColor={'#047460'}
                             onChangeText={val => setForm({ ...form, height: Number(val) })}
                             editable={disabledheight}

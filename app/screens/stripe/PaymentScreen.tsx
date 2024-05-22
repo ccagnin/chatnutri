@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Button, TextInput, Alert, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { CardField, StripeProvider, initStripe, usePaymentSheet } from '@stripe/stripe-react-native';
-import PlatformPayLocalButton from './PlatformPayLocalButton';
 import { FontAwesome } from '@expo/vector-icons';
 
-import {initPayment} from '../../utils/paymentsMethodsStripe'
-import {createSubscription} from '../../utils/subscriptionMethodsStripe'
+import { initPayment } from '../../utils/paymentsMethodsStripe'
+import { createSubscription } from '../../utils/subscriptionMethodsStripe'
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 initStripe({
-    publishableKey: 'sua_chave_publica_stripe',
+    publishableKey: 'pk_test_51Or2CoJb0HiN0pQ4JmPUUk5Xa2MO4kCsMTT7UcodyNt8Nigd8SoB5IO1egCTWOrVUDk0VbygKybfbCtm38RUid4y00dPJP7Iio',
 });
 
 
@@ -30,17 +30,21 @@ function CardSelectPlan({ props, isSelected, handlePlanSelected }: any) {
 }
 
 function PaymentScreen() {
+    const route = useRoute();
+    const { name, email, isSignup } = route.params;
+    const navigation = useNavigation();
+
     // payment
-    const [ready, setReady] = useState(false);
+    const [ready, setReady] = useState(true);
     const [loadingPayment, setLoadingPayment] = useState(false);
     const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
     const [subscriptionId, setSubscriptionId] = useState(null);
     const [plans, setPlans] = useState<{ id: string; name: string; value: number }[]>([]);
 
-    const [selectedPlan, setSelectedPlan] = useState(null)
+    const [selectedPlan, setSelectedPlan] = useState("")
     const handlePlanSelected = (plan_id: any) => {
         if (plan_id === selectedPlan) {
-            setSelectedPlan(null)
+            setSelectedPlan("")
             return
         }
         setSelectedPlan(plan_id)
@@ -49,12 +53,30 @@ function PaymentScreen() {
 
     useEffect(() => {
         setPlans([
-            { id: 'price_1Or2MeJb0HiN0pQ4TbG4eMiT', name: 'Plano semanal', value: 5 },
-            { id: 'price_1Or2MeJb0HiN0pQ4rYTyZuZm', name: 'Plano mensal', value: 20 },
-            { id: 'price_1Or2MeJb0HiN0pQ4j8pwoBzv', name: 'Plano anual', value: 240 }
+            { id: 'price_1Or2MeJb0HiN0pQ4TbG4eMiT', name: 'Plano semanal', value: 15 },
+            { id: 'price_1Or2MeJb0HiN0pQ4rYTyZuZm', name: 'Plano mensal', value: 40 },
+            { id: 'price_1Or2MeJb0HiN0pQ4j8pwoBzv', name: 'Plano anual', value: 350 }
         ]);
-        initPayment({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady})
+        // setSelectedPlan(plans[0].id)
+        // initPayment({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan:plans[0].id, setReady})
     }, []);
+
+    const pay = async () => {
+        try {
+            setLoadingPayment(true);
+            const payment = await initPayment({ initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady, name, email })
+            const subscription = await createSubscription(subscriptionId, presentPaymentSheet)
+            if(isSignup){
+                navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+            } else{
+                navigation.navigate('EditProfile', { screen: 'EditProfile' });
+            }
+            setLoadingPayment(false);
+        } catch (error) {
+            console.error(error);
+            setLoadingPayment(false);
+        }
+    }
 
     return (
         <StripeProvider
@@ -85,11 +107,18 @@ function PaymentScreen() {
                         style={styles.containerCreditCardPayment}
                         postalCodeEnabled={false}
                     />
-                    <Button
+                    {/* <Button
                         title="Pagar"
                         onPress={() => createSubscription(subscriptionId, presentPaymentSheet)}
                         disabled={!ready}
-                    />
+                    /> */}
+                    <TouchableOpacity disabled={!ready} onPress={pay} style={{ backgroundColor: ready ? '#2196F3' : '#BDBDBD', borderRadius: 5,  }}>
+                        <View style={{justifyContent:'center', alignItems: 'center', paddingVertical: 10}}>
+                        {loadingPayment ? <ActivityIndicator color="white" /> :
+                            <Text style={{ color: ready ? 'white' : 'black', fontWeight: 'bold' }}>Pagar</Text>
+                        }
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         </StripeProvider>
