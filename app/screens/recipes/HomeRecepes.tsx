@@ -7,6 +7,8 @@ import tempData from '../../utils/tempData';
 import Layout from '../../layout';
 import RenderDay from '../../../components/RenderDayList';
 
+import * as SecureStore from 'expo-secure-store';
+
 const Content = () => {
   const [loading, setLoading] = useState(true);
   const [weeklyMenu, setWeeklyMenu] = useState<any>(null);
@@ -16,20 +18,20 @@ const Content = () => {
   const fetchWeeklyMenu = async () => {
     try {
       setLoading(true);
-      // const token = await SecureStore.getItemAsync('token');
-      // const response = await ApiManager.get('menu/weekly-menu', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
-      // const weeklyMenu = response.data;
-      // setWeeklyMenu(weeklyMenu);
-      // setLoading(false);
-      setTimeout(() => {
-        const weeklyMenu = tempData;
-        setWeeklyMenu(weeklyMenu);
-        setLoading(false);
-      }, 3000);
+      const token = await SecureStore.getItemAsync('token');
+      const response = await ApiManager.get('menu/weekly-menu', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const weeklyMenu = response.data;
+      setWeeklyMenu(weeklyMenu);
+      setLoading(false);
+      // setTimeout(() => {
+      //   const weeklyMenu = tempData;
+      //   setWeeklyMenu(weeklyMenu);
+      //   setLoading(false);
+      // }, 3000);
     } catch (error) {
       console.error('Error fetching weekly menu:', error);
       setLoading(false);
