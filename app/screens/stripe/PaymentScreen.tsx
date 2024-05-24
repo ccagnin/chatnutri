@@ -1,204 +1,247 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
-import { CardField, StripeProvider, initStripe, usePaymentSheet } from '@stripe/stripe-react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import { ApiManager } from '../../api/ApiManager';
+import { usePayment } from '../../utils/usePayment';
+import { useNavigation } from 'expo-router';
+import { saveSubscription } from '../../utils/saveSubscription';
+import Theme from '../../../constants/Theme';
+import { ActivityIndicator, Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Swiper from 'react-native-swiper';
+import CustomHeaderLong from '../../../components/CustomHeaderLong';
 
-import { initPayment } from '../../utils/paymentsMethodsStripe'
-import { createSubscription } from '../../utils/subscriptionMethodsStripe'
-import { useNavigation, useRoute } from '@react-navigation/native';
+type Plan = {
+    priceId: string;
+    title: string;
+    value: string;
+};
 
-initStripe({
-    publishableKey: 'pk_test_51Or2CoJb0HiN0pQ4JmPUUk5Xa2MO4kCsMTT7UcodyNt8Nigd8SoB5IO1egCTWOrVUDk0VbygKybfbCtm38RUid4y00dPJP7Iio',
-});
-
-
-function CardSelectPlan({ props, isSelected, handlePlanSelected }: any) {
-    return (
-        <TouchableOpacity style={isSelected == props.id ? styles.selectedCard : styles.cardContainer} onPress={() => handlePlanSelected(props.id)}>
-            {isSelected == props.id && <FontAwesome name="check-circle" size={24} color="green" style={{
-                position: 'absolute',
-                right: 5,
-                top: 5,
-            }} />}
-            <Text style={styles.planText}>{props.name}</Text>
-            <Text style={styles.valuePlanText}>{props.value.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-            })}</Text>
-        </TouchableOpacity>
-    );
+interface User {
+    name: string;
+    email: string;
+    id: number;
 }
 
-function PaymentScreen() {
-    const route = useRoute();
-    const { name, email, isSignup } = route.params;
+const plans: Plan[] = [
+    {
+        priceId: 'price_1Or2MeJb0HiN0pQ4TbG4eMiT',
+        title: 'Semanal',
+        value: 'R$ 14,90',
+    },
+    {
+        priceId: 'price_1Or2MeJb0HiN0pQ4rYTyZuZm',
+        title: 'Mensal',
+        value: 'R$ 39,90',
+    },
+    {
+        priceId: 'price_1Or2MeJb0HiN0pQ4j8pwoBzv',
+        title: 'Anual',
+        value: 'R$ 399,90',
+    },
+];
+
+const PaymentScreen = () => {
+    const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [paymentLoading, setPaymentLoading] = useState(false);
     const navigation = useNavigation();
-
-    // payment
-    const [ready, setReady] = useState(true);
-    const [loadingPayment, setLoadingPayment] = useState(false);
-    const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
-    const [subscriptionId, setSubscriptionId] = useState(null);
-    const [plans, setPlans] = useState<{ id: string; name: string; value: number }[]>([]);
-
-    const [selectedPlan, setSelectedPlan] = useState("")
-    const handlePlanSelected = (plan_id: any) => {
-        if (plan_id === selectedPlan) {
-            setSelectedPlan("")
-            return
-        }
-        setSelectedPlan(plan_id)
-    }
-    // end plans
+    const [token, setToken] = useState<string | null>("");
 
     useEffect(() => {
-        setPlans([
-            { id: 'price_1Or2MeJb0HiN0pQ4TbG4eMiT', name: 'Plano semanal', value: 15 },
-            { id: 'price_1Or2MeJb0HiN0pQ4rYTyZuZm', name: 'Plano mensal', value: 40 },
-            { id: 'price_1Or2MeJb0HiN0pQ4j8pwoBzv', name: 'Plano anual', value: 350 }
-        ]);
-        // setSelectedPlan(plans[0].id)
-        // initPayment({initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan:plans[0].id, setReady})
+        const fetchUser = async () => {
+            const token = await SecureStore.getItemAsync('token');
+            console.log('Token:', token);
+            setToken(token);
+            if (!token) {
+                console.error('Erro: token não encontrado');
+                setLoading(false);
+                return;
+            }
+            try {
+                const response = await ApiManager.get('/users/profile', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setUser(response.data);
+            } catch (error) {
+                console.error('Erro ao buscar dados do usuário:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
     }, []);
 
-    const pay = async () => {
-        try {
-            setLoadingPayment(true);
-            const payment = await initPayment({ initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady, name, email })
-            const subscription = await createSubscription(subscriptionId, presentPaymentSheet)
-            if(isSignup){
-                navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email});
-            } else{
-                navigation.navigate('EditProfile', { screen: 'EditProfile' });
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoadingPayment(false);
+    const name = user?.name || '';
+    const email = user?.email || '';
+    const userId = user?.id || -1;
+    const saveUserId = SecureStore.setItemAsync('userId', userId.toString()); // Armazene o userId como uma string
+
+    console.log('Usuário:',
+        '\nNome:', name,
+        '\nEmail:', email,
+        '\nId:', userId
+    );
+
+    const { ready, loadingPayment, createSubscription, initPayment, subscriptionId } = usePayment({ name, email });
+
+    const handleSaveSubscription = async () => {
+        if (userId === -1 || subscriptionId === null) {
+            console.error('Erro: userId ou subscriptionId é null');
+            return;
         }
+
+        console.log('Salvando inscrição para o usuário:', userId);
+        try {
+            await saveSubscription(subscriptionId, userId, token);
+        } catch (error) {
+            throw error;
+        }
+        console.log('Inscrição salva com sucesso!');
+    };
+
+    const handlePayment = async (plan: Plan) => {
+        if (loading || paymentLoading) {
+            console.log('Perfil do usuário ou folha de pagamento ainda está carregando.');
+            return;
+        }
+
+        if (userId === -1) {
+            console.error('Erro: userId é null');
+            return;
+        }
+
+        setSelectedPlan(plan);
+        setPaymentLoading(true);
+        await initPayment(plan);
+
+        if (ready) {
+            try {
+                const sub = await createSubscription();
+                console.log('subscription', sub);
+                await handleSaveSubscription();
+
+                const status = await ApiManager.patch('change-subscription-status', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (status.status < 200 || status.status >= 300) {
+                    console.error('Erro ao mudar o status da inscrição');
+                    return;
+                }
+
+                const userIdKey = `isSubscribed_${userId}`; // Cria uma chave única para cada usuário
+                await SecureStore.setItemAsync(userIdKey, 'true');
+                console.log('Chave de inscrição salva com sucesso:', userIdKey);
+                console.log('Pagamento realizado com sucesso!');
+                navigation.navigate('HomeRecepes');
+            } catch (error) {
+                console.error('Erro ao criar a inscrição ou salvar a inscrição:', error);
+            } finally {
+                setPaymentLoading(false);
+            }
+        } else {
+            console.log('Erro ao inicializar a folha de pagamento');
+            setPaymentLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <Text>Carregando...</Text>;
     }
 
     return (
-        <StripeProvider
-            publishableKey="pk_test_XKUpwPvvEnNxMsSzoLm8H3i8"
-        >
-            <View style={styles.container}>
-                <View>
-                    <Text style={styles.labelPayment}>Selecione o plano</Text>
-                    {plans.length !== 0 &&
-                        <View style={styles.plansContainer}>
-                            <CardSelectPlan props={plans[0]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                            <CardSelectPlan props={plans[1]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                            <CardSelectPlan props={plans[2]} isSelected={selectedPlan} handlePlanSelected={handlePlanSelected} />
-                        </View>
-                    }
-                </View>
-                <View style={{ height: 400 }}>
-                    {/* <View style={styles.googlePayContainer}>
-                    <View><Text style={styles.labelPayment}>Pagar com Google pay</Text></View>
-                    <PlatformPayLocalButton />
-                </View> */}
-                    <View><Text style={styles.labelPayment}>Pagar com cartão de crédito</Text></View>
-                    <CardField
-                        cardStyle={{
-                            backgroundColor: '#FFFFFF',
-                            textColor: '#000000',
-                        }}
-                        style={styles.containerCreditCardPayment}
-                        postalCodeEnabled={false}
-                    />
-                    {/* <Button
-                        title="Pagar"
-                        onPress={() => createSubscription(subscriptionId, presentPaymentSheet)}
-                        disabled={!ready}
-                    /> */}
-                    <TouchableOpacity disabled={!ready} onPress={pay} style={{ backgroundColor: ready ? '#2196F3' : '#BDBDBD', borderRadius: 5,  }}>
-                        <View style={{justifyContent:'center', alignItems: 'center', paddingVertical: 10}}>
-                        {loadingPayment ? <ActivityIndicator color="white" /> :
-                            <Text style={{ color: ready ? 'white' : 'black', fontWeight: 'bold' }}>Pagar</Text>
-                        }
-                        </View>
-                    </TouchableOpacity>
-                </View>
+        <View style={styles.container}>
+            <View style={styles.headerContainer}>
+                <Animated.View style={styles.header}>
+                    <CustomHeaderLong text="Hora de escolher o seu plano:" />
+                </Animated.View>
             </View>
-        </StripeProvider>
+            <View style={styles.carouselContainer}>
+                <Swiper>
+                    {plans.map((plan) => (
+                        <TouchableOpacity
+                            key={plan.priceId}
+                            style={styles.item}
+                            onPress={() => handlePayment(plan)}
+                            disabled={paymentLoading}
+                        >
+                            <Text style={styles.title}>{plan.title}</Text>
+                            <Text style={styles.subtext}>7 dias de teste grátis!</Text>
+                            <Text style={styles.value}>{plan.value}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </Swiper>
+                {paymentLoading && <ActivityIndicator size="large" color={Theme.colors.primary} />}
+            </View>
+        </View>
     );
-}
+};
 
-function Content() {
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView>
-                <View style={{ flex: 1 }}>
-                    <PaymentScreen />
-                </View>
-            </ScrollView>
-        </SafeAreaView>
-    )
-}
-
-export default Content;
+export default PaymentScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: '2%',
-        paddingVertical: '5%',
+        backgroundColor: Theme.colors.background,
+        flexDirection: 'column',
     },
-    input: {
-        height: 40,
+    headerContainer: {
         width: '100%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        paddingHorizontal: 10,
     },
-    labelPayment: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: '2%',
-    },
-    googlePayContainer: {
-        marginBottom: '5%',
+    header: {
+        paddingTop: 20,
+        paddingHorizontal: 20,
+        backgroundColor: Theme.colors.primary,
+        borderBottomLeftRadius: 45,
+        borderBottomRightRadius: 45,
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    containerCreditCardPayment: {
-        width: '100%',
-        height: 50,
-        marginVertical: 30,
-    },
-    plansContainer: {
+    carouselContainer: {
         flex: 1,
-        flexDirection: 'row',
+        marginTop: 180,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    cardContainer: {
-        paddingHorizontal: 10,
-        height: 100,
-        width: '30%',
-        justifyContent: "center",
-        alignItems: "center",
-        marginHorizontal: 5,
-        marginBottom: '5%',
-        borderColor: 'black',
-        borderWidth: .5,
-        borderRadius: 14,
+    item: {
+        flex: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Theme.colors.background,
+        borderRadius: 10,
+        marginTop: 314,
+        width: '100%',
     },
-    selectedCard: {
-        paddingHorizontal: 10,
-        width: '30%',
-        justifyContent: "center",
-        alignItems: "center",
-        marginHorizontal: 5,
-        marginBottom: '5%',
-        borderWidth: .5,
-        borderRadius: 14,
-        opacity: 0.5,
+    title: {
+        fontSize: 24,
+        fontFamily: 'Poppins-Bold',
+        color: Theme.colors.lightBrown,
     },
-    planText: {
-        fontSize: 14,
-    },
-    valuePlanText: {
+    subtext: {
         fontSize: 16,
-        fontWeight: "bold",
-    }
-})
+        color: Theme.colors.lightBrown,
+        fontFamily: 'Poppins-Regular',
+    },
+    value: {
+        fontSize: 32,
+        color: Theme.colors.lightBrown,
+        fontFamily: 'Poppins-Bold',
+    },
+    headerText: {
+        color: Theme.colors.lightGreen,
+        fontSize: 24,
+        marginTop: 20,
+        textAlign: 'center',
+        fontFamily: 'Poppins-Regular',
+    },
+    logo: {
+        width: 50,
+        height: 50,
+    },
+});

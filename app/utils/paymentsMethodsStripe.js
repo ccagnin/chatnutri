@@ -17,6 +17,7 @@ const fetchPaymentSheetParams = async ({setSubscriptionId, selectedPlan, name, e
 
         // Extração dos parâmetros da resposta da requisição
         const { setupIntent, ephemeralKey, customer, subscriptionId } = response.data;
+        console.log('setupIntent', setupIntent);
         setSubscriptionId(subscriptionId);
 
         return {
@@ -36,6 +37,7 @@ export const initPayment = async ({initPaymentSheet, setSubscriptionId, setLoadi
     setLoadingPayment(true);
     // Obtenção dos parâmetros do pagamento do servidor backend
     const { setupIntent, ephemeralKey, customer } = await fetchPaymentSheetParams({setSubscriptionId, selectedPlan, name, email});
+    console.log('setupIntent', setupIntent);
     // Inicialização da sessão de pagamento com o Stripe
     const { error } = await initPaymentSheet({
         customerId: customer,
@@ -45,6 +47,7 @@ export const initPayment = async ({initPaymentSheet, setSubscriptionId, setLoadi
         allowsDelayedPaymentMethods: true,
         returnURL: 'example://stripe-redirect',
     });
+    console.log('error', { error });
     if (error) {
         // Exibição de alerta em caso de erro
         Alert.alert(`Error code: ${error.code}`, error.message);

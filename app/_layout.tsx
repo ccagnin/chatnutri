@@ -97,7 +97,7 @@ const RootLayoutNav = () => {
         <Stack.Screen name={ROUTES.HOME_RECIPES} component={HomeRecepes} />
         <Stack.Screen name={ROUTES.EDIT_PROFILE} component={EditProfile} />
         <Stack.Screen name={ROUTES.WEEK_DAY} component={WeekDay} />
-        <Stack.Screen options={{ headerShown: true, title: 'Planos e pagamento' }} name={ROUTES.PAYMENT_SCREEN} component={PaymentScreen} />
+        <Stack.Screen name={ROUTES.PAYMENT_SCREEN} component={PaymentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

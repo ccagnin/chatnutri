@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Animated, Easing, FlatList, Platform } from 'react-native';
+import { StyleSheet, View, Text, Animated, Easing, FlatList, Platform, Alert } from 'react-native';
 import Theme from '../../../constants/Theme';
 import { ApiManager } from '../../api/ApiManager';
 import { isSunday } from 'date-fns';
@@ -8,30 +8,57 @@ import Layout from '../../layout';
 import RenderDay from '../../../components/RenderDayList';
 
 import * as SecureStore from 'expo-secure-store';
+import { useNavigation } from 'expo-router'
 
 const Content = () => {
   const [loading, setLoading] = useState(true);
   const [weeklyMenu, setWeeklyMenu] = useState<any>(null);
   const translateY = useRef(new Animated.Value(-200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
+
 
   const fetchWeeklyMenu = async () => {
     try {
       setLoading(true);
-      // const token = await SecureStore.getItemAsync('token');
-      // const response = await ApiManager.get('menu/weekly-menu', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
-      // const weeklyMenu = response.data;
-      // setWeeklyMenu(weeklyMenu);
-      // setLoading(false);
-      setTimeout(() => {
-        const weeklyMenu = tempData;
-        setWeeklyMenu(weeklyMenu);
+      const token = await SecureStore.getItemAsync('token');
+      console.log('Token:', token);
+      const userId = await SecureStore.getItemAsync('userId');
+      console.log('userId:', userId);
+      const userIdKey = `isSubscribed_${userId}`;
+      const isSubscribed = await SecureStore.getItemAsync(userIdKey);
+
+      if (!isSubscribed || isSubscribed === 'false') {
+        console.log('User is not subscribed');
+        Alert.alert('Você não está inscrito em nenhum plano alimentar.');
+        navigation.navigate('PaymentScreen');
         setLoading(false);
-      }, 3000);
+        return;
+      }
+
+      // if (!userId) {
+      //   console.error('userId not found in secure storage');
+      //   return;
+      // }
+      // let weeklyMenu = await SecureStore.getItemAsync(`weeklyMenu_${userId}`);
+      // if (!weeklyMenu) {
+        const response = await ApiManager.get('menu/weekly-menu', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const weeklyMenu = response.data;
+        // await SecureStore.setItemAsync('weeklyMenu', JSON.stringify(weeklyMenu));
+      // } else {
+      //   weeklyMenu = JSON.parse(weeklyMenu);
+      // }
+      setWeeklyMenu(weeklyMenu);
+      setLoading(false);
+      // setTimeout(() => {
+      //   const weeklyMenu = tempData;
+      //   setWeeklyMenu(weeklyMenu);
+      //   setLoading(false);
+      // }, 3000);
     } catch (error) {
       console.error('Error fetching weekly menu:', error);
       setLoading(false);
@@ -40,9 +67,13 @@ const Content = () => {
 
   useEffect(() => {
     fetchWeeklyMenu();
+  }, []);
+
+  useEffect(() => {
 
     const intervalId = setInterval(() => {
       if (isSunday(new Date())) {
+        SecureStore.deleteItemAsync('weeklyMenu');
         fetchWeeklyMenu();
       }
     }, 86400000);
@@ -92,12 +123,20 @@ const Content = () => {
 
   return (
     <View style={styles.cardapioContainer}>
-      <Text style={styles.text}>Cardápio da semana:</Text>
-      <FlatList
-        data={weeklyMenu && ordenByWeekDay(toArray(weeklyMenu))}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Estamos carregando seu plano alimentar semanal...</Text>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.text}>Cardápio da semana:</Text>
+          <FlatList
+            data={weeklyMenu && ordenByWeekDay(toArray(weeklyMenu))}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </>
+      )}
     </View>
   );
 };

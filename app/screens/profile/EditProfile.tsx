@@ -14,11 +14,13 @@ import PlanContent from './includes/PlanContent';
 
 async function getSubscription(token: string | null) {
   try {
-    return await ApiManager.get('/subscription', {
+    const response = await ApiManager.get('/subscription', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.log(error.response?.data);
   }
@@ -39,6 +41,7 @@ const Content = () => {
   const fetchProfile = async () => {
     try {
       const token = await SecureStore.getItemAsync('token');
+      console.log(token); // Adicione esta linha
       const response = await ApiManager.get('users/profile', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -53,13 +56,18 @@ const Content = () => {
 
   const userGetSubscription = async (token: string | null) => {
     const response = await getSubscription(token);
-    setSubscription(response?.data);
+    setSubscription(response);
+    console.log(subscription);
   };
 
   useEffect(() => {
     checkAuth({ navigation });
     fetchProfile();
   }, [navigation]);
+
+  useEffect(() => {
+    console.log('useffecdt', subscription);
+  }, [subscription]);
 
   return (
     <View style={styles.container}>
