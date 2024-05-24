@@ -64,8 +64,7 @@ const Meansures = () => {
                 },
             })
                 .then(r => {
-
-                    setForm({ userId: r.data.userId, measureId: r.data.measureId, age: r.data.age, height: r.data.height, updatedWeight: (r.data.initWeight ? r.data.initWeight : "") && r.data.updatedWeight ? r.data.updatedWeight : ""})
+                    setForm({ userId: r.data.userId, measureId: r.data.measureId, age: r.data.age, height: r.data.height, updatedWeight: r.data.initWeight || r.data.updatedWeight})
                 })
         })
     }, []);

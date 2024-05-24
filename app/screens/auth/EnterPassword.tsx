@@ -6,13 +6,15 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ApiManager } from '../../api/ApiManager';
 import Theme from '../../../constants/Theme';
 
+import * as SecureStore from 'expo-secure-store';
+
 const EnterPassword = () => {
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const [password, setPassword] = useState('');
   const route = useRoute();
   const email = (route.params as { email?: string }).email;
-  const name  = (route.params as { name?: string }).name;
+  const name = (route.params as { name?: string }).name;
 
   const navigation = useNavigation();
 
@@ -28,10 +30,13 @@ const EnterPassword = () => {
         password: password,
       });
 
+      await SecureStore.setItemAsync('token', response.data.access_token);
+      await SecureStore.setItemAsync('email', email ? email : '');
+
       console.log('Resposta da API:', response.data);
 
       if (response.data.access_token) {
-        navigation.navigate('PaymentScreen', { screen: 'PaymentScreen', name, email, isSignup: true });
+        navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email, isSignup: true });
       } else {
         console.log('Erro ao logar');
       }

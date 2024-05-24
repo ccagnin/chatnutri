@@ -6,6 +6,8 @@ import AuthInput from '../../../components/AuthInput';
 import Theme from '../../../constants/Theme';
 import { ApiManager } from '../../api/ApiManager';
 
+import * as SecureStore from 'expo-secure-store';
+
 const AgeInput = () => {
   const [age, setAge] = useState('');
   const [showAuthInput, setShowAuthInput] = useState(false);
@@ -18,32 +20,10 @@ const AgeInput = () => {
   const objective = (route.params as { objective?: number }).objective;
   const weight = (route.params as { weight?: number }).weight;
   const height = (route.params as { height?: number }).height;
-  const email = (route.params as { email?: string }).email;
-  const password = (route.params as { password?: string }).password;
-
-  console.log (name, objective, weight, height, email, password);
-
-  const getToken = async () => {
-    try {
-      const response = await ApiManager.post('auth/login', {
-        email,
-        password,
-      });
-
-      if (response.data && response.data.token) {
-        return response.data.token;
-      } else {
-        console.log('Erro ao logar');
-      }
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      throw error;
-    }
-  };
 
   const fetchUser = async () => {
     try {
-      const token = await getToken();
+      const token = await SecureStore.getItemAsync('token');
 
       const response = await ApiManager.get('users/profile', {
         headers: {
@@ -54,7 +34,7 @@ const AgeInput = () => {
       const user = response.data;
       return user;
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error fetching user:', error.response?.data);
       throw error;
     }
   }
@@ -62,9 +42,17 @@ const AgeInput = () => {
   const handleNext = async () => {
     try {
       const ageNumber = parseInt(age);
-      const token = await getToken();
+      const token = await SecureStore.getItemAsync('token');
 
       const user = await fetchUser();
+
+      console.log({
+        initWeight: weight,
+        height,
+        age: ageNumber,
+        objective,
+        userId: user.id,
+      })
 
       const response = await ApiManager.post(
         'users/measures/create',
@@ -83,7 +71,7 @@ const AgeInput = () => {
       );
 
       if (response.data) {
-        navigation.navigate('HomeRecepes', { screen: 'HomeRecepes', name, token, user });
+        navigation.navigate('PaymentScreen', { screen: 'PaymentScreen', name, email: user.email});
       } else {
         console.log('Erro ao criar medidas:', response.data);
       }

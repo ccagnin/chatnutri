@@ -57,7 +57,7 @@ const Onboarding = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.header, { transform: [{ translateY }] }]}>
-        <CustomHeader />
+        <CustomHeader content={null} />
       </Animated.View>
       <Animated.View style={[styles.textContainer, { opacity: opacity }]}>
         <AuthInput
@@ -81,6 +81,8 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 50 : 10,
     paddingHorizontal: 20,
     backgroundColor: Theme.colors.primary,
+    borderBottomStartRadius: 45,
+    borderBottomEndRadius: 45,
   },
   textContainer: {
     flex: 1,

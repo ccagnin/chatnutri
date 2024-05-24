@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
         backgroundColor: Theme.colors.primary,
         borderBottomStartRadius: 45,
         borderBottomEndRadius: 45,
-        
     },
     textContainer: {
         flex: 1,

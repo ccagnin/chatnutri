@@ -67,13 +67,13 @@ function PaymentScreen() {
             const payment = await initPayment({ initPaymentSheet, setSubscriptionId, setLoadingPayment, selectedPlan, setReady, name, email })
             const subscription = await createSubscription(subscriptionId, presentPaymentSheet)
             if(isSignup){
-                navigation.navigate('HomeRecepes', { screen: 'HomeRecepes' });
+                navigation.navigate('MeasuresChat', { screen: 'MeasuresChat', name, email});
             } else{
                 navigation.navigate('EditProfile', { screen: 'EditProfile' });
             }
-            setLoadingPayment(false);
         } catch (error) {
             console.error(error);
+        } finally {
             setLoadingPayment(false);
         }
     }
